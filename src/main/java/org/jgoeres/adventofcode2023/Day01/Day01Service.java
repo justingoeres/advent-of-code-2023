@@ -10,8 +10,12 @@ import java.util.stream.Collectors;
 
 public class Day01Service {
     public boolean DEBUG = false;
+    private static final List<Integer> nONES = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    private static final List<String> wONES = List.of("one", "two", "three", "four", "five", "six",
+            "seven", "eight", "nine");
 
-    private ArrayList<Integer> inputList = new ArrayList<>();
+    private ArrayList<Integer> inputList1 = new ArrayList<>();
+    private ArrayList<Integer> inputList2 = new ArrayList<>();
 
     public Day01Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -25,20 +29,20 @@ public class Day01Service {
     public long doPartA() {
         System.out.println("=== DAY 1A ===");
 
-        long result = inputList.stream().reduce(0, Integer::sum);
-        /** Put problem implementation here **/
+        /** What is the sum of all the calibration values? **/
+        long result = inputList1.stream().reduce(0, Integer::sum);
 
-        System.out.println("Day 1A: Answer = " + result);
+        System.out.println("Day 1A: Sum of calibration values = " + result);
         return result;
     }
 
     public long doPartB() {
         System.out.println("=== DAY 1B ===");
 
-        long result = 0;
-        /** Put problem implementation here **/
+        /** What is the sum of all the calibration values? **/
+        long result = inputList2.stream().reduce(0, Integer::sum);
 
-        System.out.println("Day 1B: Answer = " + result);
+        System.out.println("Day 1B: Sum of calibration values = " + result);
         return result;
     }
 
@@ -49,26 +53,47 @@ public class Day01Service {
             9sixonefour
             eighttwo2twofour9
          */
-        inputList.clear();
+        inputList1.clear();
+        inputList2.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
             Integer nextInt = 0;
             /** Get the first digit, and last digit if it exists **/
-            Pattern p = Pattern.compile("^[a-z]*(\\d)[a-z0-9]*?(\\d)?[a-z]*$");
+            Pattern p1 = Pattern.compile("^[a-z]*(\\d)[a-z0-9]*?(\\d)?[a-z]*$");
+            Pattern p2fwd = Pattern.compile("(\\d|one|two|three|four|five|six|seven|eight|nine)");
+            Pattern p2back = Pattern.compile("(\\d|enin|thgie|neves|xis|evif|ruof|eerht|owt|eno)");
             while ((line = br.readLine()) != null) {
-                // process the line.
-                Matcher m = p.matcher(line);
-                if (m.find()) { // If our regex matched this line
+                // Part 1 Parsing:
+                Matcher m1 = p1.matcher(line);
+                if (m1.find()) { // If our regex matched this line
                     // Parse it
                     // If there's no group 2, count group 1 as first AND last
-                    Integer value = Integer.valueOf(m.group(1)) * 10
-                            + (m.group(2) != null ? Integer.valueOf(m.group(2)) : Integer.valueOf(m.group(1)));
-
-                    inputList.add(value);
+                    Integer value = Integer.valueOf(m1.group(1)) * 10
+                            + (m1.group(2) != null ? Integer.valueOf(m1.group(2)) : Integer.valueOf(m1.group(1)));
+                    inputList1.add(value);
                 }
+
+                // Part 2 Parsing:
+                Matcher m2fwd = p2fwd.matcher(line);
+                Matcher m2back = p2back.matcher(new StringBuffer(line).reverse().toString());
+                m2fwd.find();  // search from the front for the first digit
+                String part2digit1 = m2fwd.group(1);
+                m2back.find();  // search from the back for the second digit
+                String part2digit2 = m2back.group(1);
+                inputList2.add(digitValue(part2digit1) * 10 + digitValue(new StringBuffer(part2digit2).reverse().toString()));
             }
         } catch (Exception e) {
             System.out.println("Exception occurred: " + e.getMessage());
+        }
+    }
+
+    private final Integer digitValue(String digitString) {
+        if (digitString.chars().allMatch(Character::isDigit)) {
+            // if it's a digit
+            return Integer.valueOf(digitString);
+        } else {
+            // if it's a word
+            return nONES.get(wONES.indexOf(digitString));
         }
     }
 }

@@ -14,6 +14,7 @@ public class Day01Test {
 
     // Examples
     private final String EXAMPLE1_INPUT = "data/day01/example1.txt";
+    private final String EXAMPLE2_INPUT = "data/day01/example2.txt";
     private final boolean EXAMPLE_DEBUG = false;
     private Day01Service example1Service = null;
 
@@ -40,8 +41,7 @@ public class Day01Test {
         if (day01Service == null) {
             day01Service = new Day01Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
-
-        final long EXPECTED = 0;
+        final long EXPECTED = 54728;
         long result = 0;
         try {
             result = day01Service.doPartB();
@@ -72,9 +72,9 @@ public class Day01Test {
     @Disabled
     public void Day01BExample1() {
         // Instantiate the service if Part A was skipped
-        if (example1Service == null) example1Service = new Day01Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
+        if (example1Service == null) example1Service = new Day01Service(EXAMPLE2_INPUT, EXAMPLE_DEBUG);
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 281;
         long result = 0;
         try {
             result = example1Service.doPartB();
