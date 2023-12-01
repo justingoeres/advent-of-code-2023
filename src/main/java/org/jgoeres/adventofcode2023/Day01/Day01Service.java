@@ -1,9 +1,12 @@
 package org.jgoeres.adventofcode2023.Day01;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Day01Service {
     public boolean DEBUG = false;
@@ -22,7 +25,7 @@ public class Day01Service {
     public long doPartA() {
         System.out.println("=== DAY 1A ===");
 
-        long result = 0;
+        long result = inputList.stream().reduce(0, Integer::sum);
         /** Put problem implementation here **/
 
         System.out.println("Day 1A: Answer = " + result);
@@ -41,19 +44,27 @@ public class Day01Service {
 
     // load inputs line-by-line and apply a regex to extract fields
     private void loadInputs(String pathToFile) {
+        /*
+            cmpptgjc3qhcjxcbcqgqkxhrms
+            9sixonefour
+            eighttwo2twofour9
+         */
         inputList.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
             Integer nextInt = 0;
-            /** Replace this regex **/
-            Pattern p = Pattern.compile("([FB]{7})([LR]{3})");
+            /** Get the first digit, and last digit if it exists **/
+            Pattern p = Pattern.compile("^[a-z]*(\\d)[a-z0-9]*?(\\d)?[a-z]*$");
             while ((line = br.readLine()) != null) {
                 // process the line.
                 Matcher m = p.matcher(line);
                 if (m.find()) { // If our regex matched this line
                     // Parse it
-                    String field1 = m.group(1);
-                    String field2 = m.group(2);
+                    // If there's no group 2, count group 1 as first AND last
+                    Integer value = Integer.valueOf(m.group(1)) * 10
+                            + (m.group(2) != null ? Integer.valueOf(m.group(2)) : Integer.valueOf(m.group(1)));
+
+                    inputList.add(value);
                 }
             }
         } catch (Exception e) {
