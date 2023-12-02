@@ -42,7 +42,7 @@ public class Day02Test {
             day02Service = new Day02Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 83105;
         long result = 0;
         try {
             result = day02Service.doPartB();
