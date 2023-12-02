@@ -8,7 +8,7 @@
   <artifactId>adventofcode-2023-jgoeres</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>adventofcode-2021-jgoeres</name>
+  <name>adventofcode-2023-jgoeres</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -34,6 +34,13 @@
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
       <version>5.7.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.30</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
