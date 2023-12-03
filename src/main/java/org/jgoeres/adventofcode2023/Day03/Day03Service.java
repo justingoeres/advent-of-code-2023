@@ -1,22 +1,32 @@
 package org.jgoeres.adventofcode2023.Day03;
 
-import org.jgoeres.adventofcode.common.Direction8Way;
 import org.jgoeres.adventofcode.common.DirectionURDL;
 import org.jgoeres.adventofcode.common.XYPoint;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day03Service {
     public boolean DEBUG = false;
+    private static final String GEAR = "*";
+
+    // A gear is just one character (*) so there are always the same 8 steps around it
+    private static final List<DirectionURDL> gearSteps = List.of(DirectionURDL.LEFT,
+            DirectionURDL.UP,
+            DirectionURDL.RIGHT,
+            DirectionURDL.RIGHT,
+            DirectionURDL.DOWN,
+            DirectionURDL.DOWN,
+            DirectionURDL.LEFT,
+            DirectionURDL.LEFT
+    );
 
     private final ArrayList<Integer> inputList = new ArrayList<>();
     private final Map<XYPoint, String> partNumbers = new HashMap<>();
+    private final Map<XYPoint, String> partNumberCoverage = new HashMap<>();
     private final Map<XYPoint, String> symbols = new HashMap<>();
 
     public Day03Service(String pathToFile) {
@@ -30,28 +40,32 @@ public class Day03Service {
 
     public long doPartA() {
         System.out.println("=== DAY 3A ===");
-
         /**
          * Any number adjacent to a symbol, even diagonally, is a "part number" and should be included in your sum
          *
-         * What is the sum of all of the part numbers in the engine schematic?
-         * **/
+         * What is the sum of all the part numbers in the engine schematic?
+         **/
         long result = partNumbers.entrySet().stream()
                 .filter(partNumber -> checkForSymbol(partNumber.getKey(), partNumber.getValue(), symbols))
                 .map(partNumber -> Integer.parseInt(partNumber.getValue()))
                 .reduce(0, Integer::sum);
-
-        // There are fewer symbols than
         System.out.println("Day 3A: Answer = " + result);
         return result;
     }
 
     public long doPartB() {
         System.out.println("=== DAY 3B ===");
-
-        long result = 0;
-        /** Put problem implementation here **/
-
+        /**
+         * A gear is any * symbol that is adjacent to exactly two part numbers.
+         * Its gear ratio is the result of multiplying those two numbers together.
+         *
+         * What is the sum of all the gear ratios in your engine schematic?
+         **/
+        // Filter out all the non-* symbols
+        long result = symbols.entrySet().stream()
+                .filter(g -> g.getValue().equals(GEAR))
+                .map(g -> findGearRatio(g.getKey(), partNumberCoverage))
+                .reduce(0, Integer::sum);
         System.out.println("Day 3B: Answer = " + result);
         return result;
     }
@@ -63,7 +77,6 @@ public class Day03Service {
         symbols.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
-            Integer nextInt = 0;
             Integer y = 0;  // line number
             /** Match part numbers & symbols **/
             final Pattern p1 = Pattern.compile("\\d+");
@@ -75,7 +88,13 @@ public class Day03Service {
                 while (m1.find()) {
                     final String partNumber = m1.group(); // part number
                     final Integer x = m1.start(); // column number
+                    // Add this part number to the map
                     partNumbers.put(new XYPoint(x, y), partNumber);
+
+                    // Also calculate its total coverage (for Part B)
+                    for (int i = 0; i < partNumber.length(); i++) {
+                        partNumberCoverage.put(new XYPoint(x + i, y), partNumber);
+                    }
                 }
                 // Find the symbols
                 final Matcher m2 = p2.matcher(line);
@@ -111,12 +130,45 @@ public class Day03Service {
         for (DirectionURDL step : steps) {
             xy.moveRelative(1, step);
             if (symbols.containsKey(xy)) {
+                // if we found a symbol
                 if (DEBUG) System.out.println("Found symbol " + symbols.get(xy) + " at " + xy);
                 return true;
-            }   // if we found a symbol
+            }
         }
         // otherwise return false
         return false;
+    }
 
+    private Integer findGearRatio(final XYPoint xy0, final Map<XYPoint, String> partNumberCoverage) {
+        /**
+         * A gear is any * symbol that is adjacent to exactly two part numbers.
+         * Its gear ratio is the result of multiplying those two numbers together.
+         **/
+        // Figure out if this gear is next to EXACTLY two parts
+        Set<String> parts = new HashSet<>();
+        XYPoint xy = new XYPoint(xy0.getX(), xy0.getY());
+
+        if (DEBUG) System.out.println("Checking around gear at " + xy);
+        // Build the list of steps to take around the gear
+        for (DirectionURDL step : gearSteps) {
+            xy.moveRelative(1, step);
+            if (partNumberCoverage.containsKey(xy)) {
+                // if a part number covers this XY point, add it to the set of parts for this gear
+                // NOTE: Using a Set prevents duplicates, but assumes a gear is never surrounded by two identical parts.
+                parts.add(partNumberCoverage.get(xy));
+            }
+            // If a gear is bordered by more than two parts, it doesn't count; return 0.
+            if (parts.size() > 2) {
+                return 0;
+            }
+        }
+        if (parts.size() == 2) {
+            // It the gear is bordered by exactly two parts, return the product
+            return parts.stream().map(p -> Integer.parseInt(p))
+                    .reduce(1, Math::multiplyExact);
+        } else {
+            // Only bordered by one part; doesn't count. Return 0.
+            return 0;
+        }
     }
 }
