@@ -61,7 +61,7 @@ public class Day02Service {
         return result;
     }
 
-    // load inputs line-by-line and apply a regex to extract fields
+    // load inputs line-by-line and extract fields
     /*
         Game 1: 1 red, 3 blue, 11 green; 1 blue, 5 red; 3 blue, 5 green, 13 red; 6 red, 1 blue, 4 green; 16 red, 12 green
         Game 2: 3 red, 13 blue, 5 green; 14 green, 14 blue; 9 blue, 10 green, 3 red; 2 green, 5 blue; 11 green, 3 blue, 3 red; 16 blue, 2 red, 9 green
@@ -71,7 +71,6 @@ public class Day02Service {
         inputList.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
-            Integer nextInt = 0;
             /** Replace this regex **/
             final Pattern p1 = Pattern.compile("^Game (\\d+):\\s(.*)");  // extract the game id
             final Pattern p2 = Pattern.compile("(\\d+)\\s(red|green|blue),?");   // extract each reg/green/blue count

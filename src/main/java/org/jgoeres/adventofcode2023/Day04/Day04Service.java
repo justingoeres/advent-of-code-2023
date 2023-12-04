@@ -30,7 +30,7 @@ public class Day04Service {
          **/
 
         long result = scratchcards.values().stream().map(c -> c.calculateScore()).reduce(0L, Long::sum);
-        System.out.println("Day 4A: Answer = " + result);
+        System.out.println("Day 4A: Sum of all scratchcard scores = " + result);
         return result;
     }
 
@@ -49,31 +49,28 @@ public class Day04Service {
                 .map(c -> c.countAllWinners(scratchcards))
                 .reduce(0L, Long::sum);
 
-        System.out.println("Day 4B: Answer = " + result);
+        System.out.println("Day 4B: Total number of scratchcards = " + result);
         return result;
     }
 
-    // load inputs line-by-line and apply a regex to extract fields
+    // load inputs line-by-line and extract fields
     private void loadInputs(String pathToFile) {
         scratchcards.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
-            Integer nextInt = 0;
-            /** Replace this regex **/
             Pattern p = Pattern.compile("\\d+");
             while ((line = br.readLine()) != null) {
                 // process the line.
-                String[] sides = line.split(":|\\|");
+                String[] gameStrings = line.split(":|\\|");
                 Set<Integer> winningNumbers = new HashSet<>();
                 Set<Integer> gameNumbers = new HashSet<>();
 
-                // get the game number in one step
-                Matcher m0 = p.matcher(sides[0]);
-                Matcher m1 = p.matcher(sides[1]);   // winning numbers
-                Matcher m2 = p.matcher(sides[2]);   // game numbers
+                Matcher m0 = p.matcher(gameStrings[0]);   // game id
+                Matcher m1 = p.matcher(gameStrings[1]);   // winning numbers
+                Matcher m2 = p.matcher(gameStrings[2]);   // game numbers
 
                 m0.find();
-                Integer gameId = Integer.parseInt(m0.group(0));
+                Integer gameId = Integer.parseInt(m0.group(0)); // Store the game id
 
                 while (m1.find()) { // Read the winning numbers
                     Integer winningNum = Integer.parseInt(m1.group(0));

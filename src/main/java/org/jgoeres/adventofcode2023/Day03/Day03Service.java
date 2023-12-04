@@ -49,7 +49,7 @@ public class Day03Service {
                 .filter(partNumber -> checkForSymbol(partNumber.getKey(), partNumber.getValue(), symbols))
                 .map(partNumber -> Integer.parseInt(partNumber.getValue()))
                 .reduce(0, Integer::sum);
-        System.out.println("Day 3A: Answer = " + result);
+        System.out.println("Day 3A: Sum of all part numbers = " + result);
         return result;
     }
 
@@ -66,7 +66,7 @@ public class Day03Service {
                 .filter(g -> g.getValue().equals(GEAR))
                 .map(g -> findGearRatio(g.getKey(), partNumberCoverage))
                 .reduce(0, Integer::sum);
-        System.out.println("Day 3B: Answer = " + result);
+        System.out.println("Day 3B: Sum of all gear ratios = " + result);
         return result;
     }
 

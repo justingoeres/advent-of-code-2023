@@ -46,7 +46,7 @@ public class Day01Service {
         return result;
     }
 
-    // load inputs line-by-line and apply a regex to extract fields
+    // load inputs line-by-line and extract fields
     private void loadInputs(String pathToFile) {
         /*
             cmpptgjc3qhcjxcbcqgqkxhrms
@@ -57,7 +57,6 @@ public class Day01Service {
         inputList2.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
-            Integer nextInt = 0;
             /** Get the first digit, and last digit if it exists **/
             Pattern p1 = Pattern.compile("^[a-z]*(\\d)[a-z0-9]*?(\\d)?[a-z]*$");
             Pattern p2fwd = Pattern.compile("(\\d|one|two|three|four|five|six|seven|eight|nine)");

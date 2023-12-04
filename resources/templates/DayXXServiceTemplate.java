@@ -39,12 +39,11 @@ public class Day${AOC_DAY}Service {
         return result;
     }
 
-    // load inputs line-by-line and apply a regex to extract fields
+    // load inputs line-by-line and extract fields
     private void loadInputs(String pathToFile) {
         inputList.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
-            Integer nextInt = 0;
             /** Replace this regex **/
             Pattern p = Pattern.compile("([FB]{7})([LR]{3})");
             while ((line = br.readLine()) != null) {

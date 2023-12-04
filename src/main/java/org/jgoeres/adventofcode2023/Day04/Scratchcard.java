@@ -35,7 +35,7 @@ public class Scratchcard {
 
         // for the current card find out how many *more* cards we should process
         long totalCount = 1; // ourselves
-        long addlCards = countWinners();    // how many under this card to process
+        final long addlCards = countWinners();    // how many under this card to process
 
         if (countWinners() == 0) return updateAndReturnTotalCount(totalCount); // no more, just this card
 
