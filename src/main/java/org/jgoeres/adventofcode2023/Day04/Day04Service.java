@@ -2,16 +2,14 @@ package org.jgoeres.adventofcode2023.Day04;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day04Service {
     public boolean DEBUG = false;
 
-    private ArrayList<Scratchcard> scratchcards = new ArrayList<>();
+    private Map<Integer, Scratchcard> scratchcards = new HashMap();
 
     public Day04Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -31,7 +29,7 @@ public class Day04Service {
          * Calculate the scores of all the cards and add them up.
          **/
 
-        long result = scratchcards.stream().map(c -> c.calculateScore()).reduce(0L, Long::sum);
+        long result = scratchcards.values().stream().map(c -> c.calculateScore()).reduce(0L, Long::sum);
         System.out.println("Day 4A: Answer = " + result);
         return result;
     }
@@ -39,8 +37,17 @@ public class Day04Service {
     public long doPartB() {
         System.out.println("=== DAY 4B ===");
 
-        long result = 0;
-        /** Put problem implementation here **/
+        /**
+         * You win copies of the scratchcards below the winning card equal to the number of matches.
+         *
+         * Process all of the original and copied scratchcards until no more scratchcards are won.
+         * Including the original set of scratchcards, how many total scratchcards do you end up with?
+         **/
+
+        // Note we're not scoring, we're just counting number of *cards*
+        long result = scratchcards.values().stream()
+                .map(c -> c.countAllWinners(scratchcards))
+                .reduce(0L, Long::sum);
 
         System.out.println("Day 4B: Answer = " + result);
         return result;
@@ -60,8 +67,13 @@ public class Day04Service {
                 Set<Integer> winningNumbers = new HashSet<>();
                 Set<Integer> gameNumbers = new HashSet<>();
 
+                // get the game number in one step
+                Matcher m0 = p.matcher(sides[0]);
                 Matcher m1 = p.matcher(sides[1]);   // winning numbers
                 Matcher m2 = p.matcher(sides[2]);   // game numbers
+
+                m0.find();
+                Integer gameId = Integer.parseInt(m0.group(0));
 
                 while (m1.find()) { // Read the winning numbers
                     Integer winningNum = Integer.parseInt(m1.group(0));
@@ -71,7 +83,7 @@ public class Day04Service {
                     Integer gameNumber = Integer.parseInt(m2.group(0));
                     gameNumbers.add(gameNumber);
                 }
-                scratchcards.add(new Scratchcard(winningNumbers, gameNumbers));
+                scratchcards.put(gameId, new Scratchcard(gameId, winningNumbers, gameNumbers));
             }
         } catch (Exception e) {
             System.out.println("Exception occurred: " + e.getMessage());
