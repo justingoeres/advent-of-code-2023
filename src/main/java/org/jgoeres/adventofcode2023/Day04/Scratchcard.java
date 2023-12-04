@@ -19,8 +19,7 @@ public class Scratchcard {
 
     public long calculateScore() {
         final long winningCount = countWinners();
-
-        return (winningCount == 0) ? 0 : (long) Math.pow(2, winningCount - 1);
+        return (winningCount == 0) ? 0 : (long) 1 << (winningCount - 1);
     }
 
     private long countWinners() {

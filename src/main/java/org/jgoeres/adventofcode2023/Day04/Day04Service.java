@@ -29,7 +29,8 @@ public class Day04Service {
          * Calculate the scores of all the cards and add them up.
          **/
 
-        long result = scratchcards.values().stream().map(c -> c.calculateScore()).reduce(0L, Long::sum);
+        long result = scratchcards.values().stream()
+                .map(c -> c.calculateScore()).reduce(0L, Long::sum);
         System.out.println("Day 4A: Sum of all scratchcard scores = " + result);
         return result;
     }
