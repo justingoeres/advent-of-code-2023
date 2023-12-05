@@ -24,7 +24,7 @@ public class Day05Test {
             day05Service = new Day05Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 510109797;
         long result = 0;
         try {
             result = day05Service.doPartA();
@@ -58,7 +58,7 @@ public class Day05Test {
     @Disabled
     public void Day05AExample1() {
         example1Service = new Day05Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
-        final long EXPECTED = 0;
+        final long EXPECTED = 35;
         long result = 0;
         try {
             result = example1Service.doPartA();
