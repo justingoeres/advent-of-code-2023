@@ -45,9 +45,9 @@ public class Day05Service {
         // Just iterate through all the seeds
         Long minLocation = Long.MAX_VALUE;
         for (Long seed : seeds) {
-            System.out.println("seed:\t" + seed);
+//            System.out.println("seed:\t" + seed);
             final Long finalLocation = getFinalLocation(seed);
-            System.out.println("final location:\t" + finalLocation + "\n");
+//            System.out.println("final location:\t" + finalLocation + "\n");
             if ((finalLocation) < minLocation) minLocation = finalLocation;
         }
         System.out.println("Day 5A: Lowest location number = " + minLocation);
@@ -133,17 +133,17 @@ public class Day05Service {
                     && source < (mapEntry.getKey() + destination.getLength())) {
                 // It's in the range, so return the mapped value
                 Long destinationValue = destination.getStart() + (source - mapEntry.getKey());
-                System.out.println("destination:\t" + destinationValue);
+//                System.out.println("destination:\t" + destinationValue);
                 return destinationValue;
             } else if (source < mapEntry.getKey()) {
                 // If source < the start of this destination, then we're past any entry
                 // it could match, so just map it straight through
-                System.out.println("destination:\t" + source + "\t(straight through)");
+//                System.out.println("destination:\t" + source + "\t(straight through)");
                 return source;
             }
         }
         // If nothing matched at all, map it through
-        System.out.println("destination:\t" + source + "\t(straight through / final case)");
+//        System.out.println("destination:\t" + source + "\t(straight through / final case)");
         return source;
     }
 
