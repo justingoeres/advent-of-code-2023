@@ -10,8 +10,4 @@ import lombok.Setter;
 public class SeedRange {
     private final Long start;
     private final Long end;
-
-    public Long getLength() {
-        return end - start + 1;
-    }
 }

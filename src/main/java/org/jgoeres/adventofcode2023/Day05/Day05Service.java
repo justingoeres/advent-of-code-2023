@@ -19,12 +19,6 @@ public class Day05Service {
     private final TreeMap<Long, GardenDestination> tempToHumidity = new TreeMap<>();
     private final TreeMap<Long, GardenDestination> humidityToLocation = new TreeMap<>();
 
-    private static final GardenDestination STRAIGHT_THROUGH = new GardenDestination(0L, 0L);
-
-//    private ArrayList<IGetMapDestination> allGetMapDestinations = List.of(
-//            (source) -> getMapDestination(source,seedToSoil)
-//    )
-
     public Day05Service(String pathToFile) {
         loadInputs(pathToFile);
     }
@@ -37,9 +31,6 @@ public class Day05Service {
     public long doPartA() {
         System.out.println("=== DAY 5A ===");
 
-//        System.out.println("seed\tsoil");
-//        for (Long i = 0L; i < 100; i++) System.out.println(i + "\t" + getMapDestination(i, seedToSoil));
-
         /**
          * What is the lowest location number that corresponds to any of the
          * initial seed numbers?
@@ -48,19 +39,16 @@ public class Day05Service {
         // Just iterate through all the seeds
         Long minLocation = Long.MAX_VALUE;
         for (Long seed : seeds) {
-//            System.out.println("seed:\t" + seed);
             final Long finalLocation = getFinalLocation(seed);
-//            System.out.println("final location:\t" + finalLocation + "\n");
             if ((finalLocation) < minLocation) minLocation = finalLocation;
         }
-        System.out.println("Day 5A: Lowest location number = " + minLocation);
+        System.out.println("Day 5A: Minimum seed location = " + minLocation);
         return minLocation;
     }
 
     public long doPartB() {
         System.out.println("=== DAY 5B ===");
 
-        long result = 0;
         /**
          * Oops! The seed line actually describes ranges of seed numbers!
          *
@@ -68,20 +56,52 @@ public class Day05Service {
          * the initial seed numbers?
          **/
 
-        final Set<SeedRange> allOutputRanges = new HashSet<>();
+        // For each seed range, we can start at the bottom of the range (lowest seed, call it s)
+        // and map it through the layers. Because of the way the ranges work, wherever s
+        // ends up as a final location, s+1's final location will be ONE MORE than that,
+        // UNLESS s+1 causes one of the map ranges to cross a breakpoint.
+        //
+        // That means if we pay attention to the *minimum length* of the maps as we traverse
+        // them for s, that tells us that everything between s and s + min_length
+        // will be a contiguous set, AND that the final location of s is the minimum location of that set.
+
+        final List<TreeMap<Long, GardenDestination>> allMaps = List.of(seedToSoil,
+                soilToFertilizer,
+                fertilizerToWater,
+                waterToLight,
+                lightToTemp,
+                tempToHumidity,
+                humidityToLocation);
+
+        Long minFinalLocation = Long.MAX_VALUE;
+        // For each range...
         for (SeedRange seedRange : seedRanges) {
-            allOutputRanges.addAll(calculateOutputRanges(seedRange,seedToSoil));
+            // Iterate over the full length of that range
+            for (Long seed = seedRange.getStart(); seed <= seedRange.getEnd(); seed++) {
+                // Map it through the whole stack
+                Long minRange = Long.MAX_VALUE;
+                DestinationPartB destination;
+                Long mapSeed = seed;
+                for (TreeMap<Long, GardenDestination> map : allMaps) {
+                    if (DEBUG) System.out.printf("Seed:\t%d\tMap Seed:\t%d\tMinimum Range:\t%d\n", seed, mapSeed, minRange);
+                    destination = getMapDestinationPartB(mapSeed, map);
+                    // Update the minimum range so far
+                    minRange = Math.min(destination.getLength(), minRange);
+                    // Update the seed location for the next map level
+                    mapSeed = destination.getDestinationValue();
+                }
+                // Now we should have the final seed location AND the minimum range of the map stack it went through
+                // Update the minimum final location
+                minFinalLocation = Math.min(mapSeed, minFinalLocation);
+                if (DEBUG) System.out.printf("Finished seed:\t%d\tFinal location:\t%d (minimum %d)\tJump ahead by:\t%d\n", seed, mapSeed, minFinalLocation, minRange);
+
+                // Finally, jump the 'seed' ahead by the minimum contiguous range in the map stack
+                seed += minRange;
+            }
         }
 
-        for (SeedRange seedRange : seedRanges) {
-            allOutputRanges.addAll(
-
-                    calculateOutputRanges(calculateOutputRanges(seedRange,seedToSoil),soilToFertilizer);
-        }
-
-
-        System.out.println("Day 5B: Answer = " + result);
-        return result;
+        System.out.println("Day 5B: Minimum final seed location = " + minFinalLocation);
+        return minFinalLocation;
     }
 
     // load inputs line-by-line and extract fields
@@ -161,7 +181,25 @@ public class Day05Service {
             destinationValue = destination.getValue().getStart() + (source - destination.getKey());
         }
         return destinationValue;
+    }
 
+    public DestinationPartB getMapDestinationPartB(Long source, TreeMap<Long, GardenDestination> map) {
+        Map.Entry<Long, GardenDestination> destination = findOutputGardenDestination(source, map);
+
+        Long destinationValue;
+        Long destinationEnd;
+
+        if (destination != null) {
+            destinationValue = destination.getValue().getStart() + (source - destination.getKey());
+            destinationEnd = destination.getValue().getEnd();
+        } else {
+            destinationValue = source;
+            destinationEnd = Long.MAX_VALUE;
+        }
+        // We have the value that source maps, too; now find how much of this 'destination range' is left
+        Long destinationRange = destinationEnd - destinationValue;
+
+        return new DestinationPartB(destinationValue, destinationRange);
     }
 
     public Map.Entry<Long, GardenDestination> findOutputGardenDestination(Long source, TreeMap<Long, GardenDestination> map) {
@@ -179,41 +217,6 @@ public class Day05Service {
             }
         }
         // If source doesn't fall into any defined segment, return the identity (straight-through) mapping
-        return null;
-    }
-
-    public Set<SeedRange> calculateOutputRanges(SeedRange seedRange, TreeMap<Long, GardenDestination> map) {
-        // We need to take the input range (start & end) and figure out how it splits
-        // into multiple output ranges on its way through the map
-
-        final Set<SeedRange> outputRanges = new HashSet<>();
-        // Start at... the start
-        for (Long seed = seedRange.getStart(); seed <= seedRange.getEnd(); seed++) {
-            // Figure out what output range the 'current' position lands in
-            final Map.Entry<Long, GardenDestination> outputMapEntry = findOutputGardenDestination(seed, map);
-
-            // Convert the start of the seed range to the start of the output range
-            final Long outputRangeStart = getMapDestination(seed, map);
-
-            // How much of the output range is left?
-            final Long outputRangeLeft = outputMapEntry.getValue().getEnd() - outputRangeStart;
-
-            // Does this seed range fit entirely within the output range?
-            if (outputRangeLeft >= seedRange.getLength()) {
-                final Long outputRangeEnd = outputRangeStart + seedRange.getLength();
-                final SeedRange outputRange = new SeedRange(outputRangeStart, outputRangeEnd);
-                outputRanges.add(outputRange);
-                return outputRanges; // we're done, we've hit the end of the seed range
-            } else {
-                // This seed range does NOT fit entire in the output range, so we have to split it
-                final Long outputRangeEnd = outputRangeStart + outputRangeLeft;
-                final SeedRange outputRange = new SeedRange(outputRangeStart, outputRangeEnd);
-                outputRanges.add(outputRange);
-                // update the seed to the end of the range we just processed
-                seed += outputRange.getLength();
-            }
-        }
-        // This should never happen (maybe the For could be a While)
         return null;
     }
 
