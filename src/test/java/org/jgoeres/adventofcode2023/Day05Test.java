@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Day05Test {
     // Puzzle
     private final String PUZZLE_INPUT = "data/day05/input.txt";
-    private final boolean PUZZLE_DEBUG = true;
+    private final boolean PUZZLE_DEBUG = false;
     private Day05Service day05Service = null;
 
     // Examples
