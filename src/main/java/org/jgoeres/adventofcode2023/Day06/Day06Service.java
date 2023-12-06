@@ -55,8 +55,9 @@ public class Day06Service {
         // The button hold times that will beat the record distance
         // are all the t_hold times between (inclusive) the roots of the quadratic equation
         //      t_hold^2 - t_race * t_hold + d_race = 0
-        final Long min = (long) Math.ceil((boatRace.getTime() - Math.sqrt(Math.pow(boatRace.getTime(), 2) - 4 * boatRace.getRecordDistance())) / 2 + .00000001); // the .00000001 is to handle cases where the answer is exact; we need to be strictly > and d, those
-        final Long max = (long) Math.floor((boatRace.getTime() + Math.sqrt(Math.pow(boatRace.getTime(), 2) - 4 * boatRace.getRecordDistance())) / 2 - .00000001);
+        // then add and substract 1 from the respective roots so we don't count "ties" with the record time
+        final Long min = (long) Math.floor((boatRace.getTime() - Math.sqrt(Math.pow(boatRace.getTime(), 2) - 4 * boatRace.getRecordDistance())) / 2 + 1);
+        final Long max = (long) Math.ceil((boatRace.getTime() + Math.sqrt(Math.pow(boatRace.getTime(), 2) - 4 * boatRace.getRecordDistance())) / 2 - 1);
 
         return new ButtonRange(min, max);
     }
