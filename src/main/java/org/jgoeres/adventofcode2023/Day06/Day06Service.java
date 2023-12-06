@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
 public class Day06Service {
     public boolean DEBUG = false;
 
-    private Set<BoatRace> boatRaces = new HashSet<>();
+    private final Set<BoatRace> boatRaces = new HashSet<>();
+    private BoatRace oneLongRace;
 
     public Day06Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -26,26 +27,28 @@ public class Day06Service {
         System.out.println("=== DAY 6A ===");
 
         long result = 1;
-        /** Put problem implementation here **/
+        /** Calculate how many different ways there are to win for each race, then multiply those together **/
         for (BoatRace boatRace : boatRaces) {
             ButtonRange buttonRange = calculateHoldTimes(boatRace);
             Long waysToWin = buttonRange.getMax() - buttonRange.getMin() + 1;
-            System.out.printf("time:\t%d\trecord distance:\t%d\tmin_hold:\t%d\tmax_hold:\t%d\tways to win:\t%d\n",
-                    boatRace.getTime(), boatRace.getRecordDistance(), buttonRange.getMin(), buttonRange.getMax(), waysToWin);
+            if (DEBUG)
+                System.out.printf("time:\t%d\trecord distance:\t%d\tmin_hold:\t%d\tmax_hold:\t%d\tways to win:\t%d\n",
+                        boatRace.getTime(), boatRace.getRecordDistance(), buttonRange.getMin(), buttonRange.getMax(), waysToWin);
             result *= waysToWin;
         }
-        System.out.println("Day 6A: Answer = " + result);
+        System.out.println("Day 6A: Product of all ways to win = " + result);
         return result;
     }
 
     public long doPartB() {
         System.out.println("=== DAY 6B ===");
 
-        long result = 0;
-        /** Put problem implementation here **/
+        /** How many ways can you beat the record in the longer race? **/
 
-        System.out.println("Day 6B: Answer = " + result);
-        return result;
+        ButtonRange buttonRange = calculateHoldTimes(oneLongRace);
+        Long waysToWin = buttonRange.getMax() - buttonRange.getMin() + 1;
+        System.out.println("Day 6B: # of ways to win = " + waysToWin);
+        return waysToWin;
     }
 
     private ButtonRange calculateHoldTimes(BoatRace boatRace) {
@@ -72,11 +75,18 @@ public class Day06Service {
             Matcher m1 = p.matcher(times);
             Matcher m2 = p.matcher(distances);
 
+            String oneLongRaceTime = "";
+            String oneLongRaceDistance = "";
             while (m1.find() && m2.find()) {
                 Long time = Long.parseLong(m1.group(0));
                 Long distance = Long.parseLong(m2.group(0));
                 boatRaces.add(new BoatRace(time, distance));
+
+                oneLongRaceTime += m1.group(0);
+                oneLongRaceDistance += m2.group(0);
             }
+            oneLongRace = new BoatRace(Long.parseLong(oneLongRaceTime), Long.parseLong(oneLongRaceDistance));
+
         } catch (Exception e) {
             System.out.println("Exception occurred: " + e.getMessage());
         }
