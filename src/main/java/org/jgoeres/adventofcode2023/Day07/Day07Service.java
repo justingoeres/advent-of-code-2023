@@ -82,7 +82,7 @@ public class Day07Service {
             rank++;
         }
 
-        System.out.println("Day 7A: Answer = " + result);
+        System.out.println("Day 7A: Total winnings = " + result);
         return result;
     }
 
@@ -99,7 +99,7 @@ public class Day07Service {
             rank++;
         }
 
-        System.out.println("Day 7B: Answer = " + result);
+        System.out.println("Day 7B: Total winnings with jokers = " + result);
         return result;
     }
 
