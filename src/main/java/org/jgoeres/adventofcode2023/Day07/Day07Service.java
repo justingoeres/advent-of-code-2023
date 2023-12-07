@@ -120,16 +120,7 @@ public class Day07Service {
             Pattern.compile("(.)\\1.?(.)\\2"),   // TWO_PAIR
             Pattern.compile("(.)\\1")   // ONE_PAIR
     );
-
-    private static final List<Pattern> CLASSIFIERS_PART2 = List.of(
-            Pattern.compile("(J|.)\\1{4}"),   // FIVE_OF_A_KIND
-            Pattern.compile("(J|.)\\1{3}"),   // FOUR_OF_A_KIND
-            Pattern.compile("(J|.)\\1{2}(.)\\2"),   // FULL_HOUSE, e.g. AAAQQ
-            Pattern.compile("(J|.)\\1(.)\\2{2}"),   // FULL_HOUSE the other way, e.g. AAQQQ
-            Pattern.compile("(J|.)\\1{2}"),   // THREE_OF_A_KIND
-            Pattern.compile("(J|.)\\1.?(.)\\2"),   // TWO_PAIR
-            Pattern.compile("(J|.)\\1")   // ONE_PAIR
-    );
+    
     private static final List<HandType> CLASSES = List.of(
             FIVE_OF_A_KIND,
             FOUR_OF_A_KIND,
@@ -188,41 +179,6 @@ public class Day07Service {
                 break;
         }
         return handType;
-
-//        final Comparator<Integer> compareWithJokers = (o1, o2) -> {
-//            // sort the 'J' to the front, everything else normally
-//            if (o1 == 'J') return -1;
-//            // otherwise do a normal comparison
-//            return o1.compareTo(o2);
-//        };
-//
-//        // First sort the cards so like values are grouped
-//        String sorted = hand.chars().boxed()
-//                .sorted(compareWithJokers)
-//                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-//                .toString();
-//        // Now apply a bunch of regexes to identify things.
-//        for (int i = 0; i < CLASSIFIERS_PART2.size(); i++) {
-//            Pattern classifier = CLASSIFIERS_PART2.get(i);
-//            Matcher m = classifier.matcher(sorted);
-//            if (m.find()) {
-//                // if this classifier matches the sorted hand, return the classification
-//                return CLASSES.get(i);
-//            }
-//        }
-//        // If nothing matched, it's nothing special
-//        return HIGH_CARD;
-    }
-
-    static class CardOrderJokersPart2 implements Comparator<Character> {
-
-        @Override
-        public int compare(Character o1, Character o2) {
-            // sort the 'J' to the front, everything else normally
-            if (o1 == 'J') return 1;
-            // otherwise do a normal comparison
-            return o1.compareTo(o2);
-        }
     }
 
     static class HandStrengthOrderPart1 implements Comparator<String> {
@@ -245,8 +201,6 @@ public class Day07Service {
         private static int compareCards(Character c1, Character c2) {
             return cardOrder.get(c1).compareTo(cardOrder.get(c2));
         }
-
-
     }
 
     static class HandStrengthOrderPart2 implements Comparator<String> {
