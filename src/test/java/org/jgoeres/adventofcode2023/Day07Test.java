@@ -43,9 +43,7 @@ public class Day07Test {
             day07Service = new Day07Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        // 254105852 too low
-        // 254056319 too low
-        final long EXPECTED = 0;
+        final long EXPECTED = 254412181;
         long result = 0;
         try {
             result = day07Service.doPartB();

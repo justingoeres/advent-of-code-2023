@@ -26,7 +26,7 @@ public class Day07Service {
 
     private static final String JOKER = "J";
 
-    private static final Map<Character, Integer> cardOrder = Map.ofEntries(
+    private static final Map<Character, Integer> cardOrderPart1 = Map.ofEntries(
             Map.entry('A', 14),
             Map.entry('K', 13),
             Map.entry('Q', 12),
@@ -42,6 +42,21 @@ public class Day07Service {
             Map.entry('2', 2)
     );
 
+    private static final Map<Character, Integer> cardOrderPart2 = Map.ofEntries(
+            Map.entry('A', 14),
+            Map.entry('K', 13),
+            Map.entry('Q', 12),
+            Map.entry('T', 10),
+            Map.entry('9', 9),
+            Map.entry('8', 8),
+            Map.entry('7', 7),
+            Map.entry('6', 6),
+            Map.entry('5', 5),
+            Map.entry('4', 4),
+            Map.entry('3', 3),
+            Map.entry('2', 2),
+            Map.entry('J', 1)   // J is weak now
+    );
 
     public Day07Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -120,7 +135,7 @@ public class Day07Service {
             Pattern.compile("(.)\\1.?(.)\\2"),   // TWO_PAIR
             Pattern.compile("(.)\\1")   // ONE_PAIR
     );
-    
+
     private static final List<HandType> CLASSES = List.of(
             FIVE_OF_A_KIND,
             FOUR_OF_A_KIND,
@@ -199,7 +214,7 @@ public class Day07Service {
         }
 
         private static int compareCards(Character c1, Character c2) {
-            return cardOrder.get(c1).compareTo(cardOrder.get(c2));
+            return cardOrderPart1.get(c1).compareTo(cardOrderPart1.get(c2));
         }
     }
 
@@ -221,7 +236,7 @@ public class Day07Service {
         }
 
         private static int compareCards(Character c1, Character c2) {
-            return cardOrder.get(c1).compareTo(cardOrder.get(c2));
+            return cardOrderPart2.get(c1).compareTo(cardOrderPart2.get(c2));
         }
     }
 }
