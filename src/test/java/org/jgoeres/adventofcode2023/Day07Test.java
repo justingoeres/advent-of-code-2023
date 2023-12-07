@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Day07Test {
     // Puzzle
     private final String PUZZLE_INPUT = "data/day07/input.txt";
-    private final boolean PUZZLE_DEBUG = false;
+    private final boolean PUZZLE_DEBUG = true;
     private Day07Service day07Service = null;
 
     // Examples
@@ -43,6 +43,8 @@ public class Day07Test {
             day07Service = new Day07Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
+        // 254105852 too low
+        // 254056319 too low
         final long EXPECTED = 0;
         long result = 0;
         try {
@@ -76,7 +78,7 @@ public class Day07Test {
         // Instantiate the service if Part A was skipped
         if (example1Service == null) example1Service = new Day07Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 5905;
         long result = 0;
         try {
             result = example1Service.doPartB();
