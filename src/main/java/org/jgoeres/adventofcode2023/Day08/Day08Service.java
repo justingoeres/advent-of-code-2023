@@ -52,10 +52,57 @@ public class Day08Service {
         System.out.println("=== DAY 8B ===");
 
         long result = 0;
-        /** Put problem implementation here **/
+        /**
+         * Simultaneously start on every node that ends with A.
+         * How many steps does it take before you're only on nodes that end with Z?
+         **/
 
+        // Start at all nodes ending in 'A'
+        Set<Node> ghostNodes = nodes.entrySet().stream()
+                .filter(nodeEntry -> nodeEntry.getKey().charAt(2) == 'A')
+                .map(nodeEntry -> nodeEntry.getValue())
+                .collect(Collectors.toSet());
+
+        final Set<Node> targetNodes = nodes.entrySet().stream()
+                .filter(nodeEntry -> nodeEntry.getKey().charAt(2) == 'Z')
+                .map(nodeEntry -> nodeEntry.getValue())
+                .collect(Collectors.toSet());
+
+        List<Long> ghostSteps = new ArrayList<>();
+
+        // Calculate the number of steps for each ghost individually
+        for (Node ghostNode : ghostNodes) {
+            long steps = 0;
+            int i = 0;
+            while (!(targetNodes.contains(ghostNode))) {
+                final char nextStep = directions[i];
+                // move to the next node
+                ghostNode = nodes.get((nextStep == LEFT) ? ghostNode.getLeft() : ghostNode.getRight());
+                steps++;    // increment our step count
+                i = (i + 1) % directions.length;    // increment the directions pointer, with rollover
+            }
+            // Now that we know how many steps for this ghost, record it
+            ghostSteps.add(steps);
+        }
+        // Now that we know all the steps, the least common multiple of all of them is when the ghosts will be home together
+        result = ghostSteps.stream().reduce(1L, (a, b) -> lcm(a, b));
         System.out.println("Day 8B: Answer = " + result);
         return result;
+    }
+
+    public static long lcm(long number1, long number2) {
+        if (number1 == 0 || number2 == 0) {
+            return 0;
+        }
+        long absNumber1 = Math.abs(number1);
+        long absNumber2 = Math.abs(number2);
+        long absHigherNumber = Math.max(absNumber1, absNumber2);
+        long absLowerNumber = Math.min(absNumber1, absNumber2);
+        long lcm = absHigherNumber;
+        while (lcm % absLowerNumber != 0) {
+            lcm += absHigherNumber;
+        }
+        return lcm;
     }
 
     // load inputs line-by-line and extract fields
