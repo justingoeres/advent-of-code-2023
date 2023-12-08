@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.jgoeres.adventofcode.common.AoCMath.lcm;
+
 public class Day08Service {
     public boolean DEBUG = false;
 
@@ -87,21 +89,6 @@ public class Day08Service {
         result = ghostSteps.stream().reduce(1L, (a, b) -> lcm(a, b));
         System.out.println("Day 8B: Steps for ghosts = " + result);
         return result;
-    }
-
-    public static long lcm(long number1, long number2) {
-        if (number1 == 0 || number2 == 0) {
-            return 0;
-        }
-        long absNumber1 = Math.abs(number1);
-        long absNumber2 = Math.abs(number2);
-        long absHigherNumber = Math.max(absNumber1, absNumber2);
-        long absLowerNumber = Math.min(absNumber1, absNumber2);
-        long lcm = absHigherNumber;
-        while (lcm % absLowerNumber != 0) {
-            lcm += absHigherNumber;
-        }
-        return lcm;
     }
 
     // load inputs line-by-line and extract fields
