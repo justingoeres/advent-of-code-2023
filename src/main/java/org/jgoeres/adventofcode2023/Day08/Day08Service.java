@@ -13,7 +13,6 @@ public class Day08Service {
     private char[] directions;
     private Map<String, Node> nodes = new HashMap();
     private static final char LEFT = 'L';
-    private static final char RIGHT = 'R';
 
     public Day08Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -44,7 +43,7 @@ public class Day08Service {
             i = (i + 1) % directions.length;    // increment the directions pointer, with rollover
         }
 
-        System.out.println("Day 8A: Answer = " + steps);
+        System.out.println("Day 8A: Steps for me = " + steps);
         return steps;
     }
 
@@ -58,7 +57,7 @@ public class Day08Service {
          **/
 
         // Start at all nodes ending in 'A'
-        Set<Node> ghostNodes = nodes.entrySet().stream()
+        final Set<Node> ghostNodes = nodes.entrySet().stream()
                 .filter(nodeEntry -> nodeEntry.getKey().charAt(2) == 'A')
                 .map(nodeEntry -> nodeEntry.getValue())
                 .collect(Collectors.toSet());
@@ -86,7 +85,7 @@ public class Day08Service {
         }
         // Now that we know all the steps, the least common multiple of all of them is when the ghosts will be home together
         result = ghostSteps.stream().reduce(1L, (a, b) -> lcm(a, b));
-        System.out.println("Day 8B: Answer = " + result);
+        System.out.println("Day 8B: Steps for ghosts = " + result);
         return result;
     }
 
