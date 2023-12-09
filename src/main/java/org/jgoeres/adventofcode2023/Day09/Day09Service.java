@@ -28,11 +28,11 @@ public class Day09Service {
          * What is the sum of these extrapolated values?
          **/
         // Process each set of readings
-        Long result = sensorReadings.stream()
+        final Long result = sensorReadings.stream()
                 .map(this::calculateNextValue)
                 .mapToLong(nextValue -> nextValue)
                 .sum();
-        System.out.println("Day 9A: Answer = " + result);
+        System.out.println("Day 9A: Sum of next values = " + result);
         return result;
     }
 
@@ -42,23 +42,18 @@ public class Day09Service {
          * Analyze your OASIS report again, this time extrapolating the previous value for each history.
          * What is the sum of these extrapolated values?
          **/
-        Long result = sensorReadings.stream()
+        final Long result = sensorReadings.stream()
                 .map(this::calculatePreviousValue)
                 .mapToLong(nextValue -> nextValue)
                 .sum();
-
-        System.out.println("Day 9B: Answer = " + result);
+        System.out.println("Day 9B: Sum of previous values = " + result);
         return result;
     }
 
     private Long calculateNextValue(final List<Long> readings) {
         // Make a note of the last known value in this set
         final Long lastValue = readings.get(readings.size() - 1);
-        final List<Long> differences = new ArrayList<>();
-        for (int i = 1; i < readings.size(); i++) {
-            // find the difference between the ith reading and the (i-1)th
-            differences.add(readings.get(i) - readings.get(i - 1));
-        }
+        final List<Long> differences = calculateDifferences(readings);
         // Do we have all zeroes yet?
         // If so, we're done!
         if (differences.stream().allMatch(d -> d == 0L)) {
@@ -72,11 +67,7 @@ public class Day09Service {
     private Long calculatePreviousValue(final List<Long> readings) {
         // Make a note of the first value in this set
         final Long firstValue = readings.get(0);
-        final List<Long> differences = new ArrayList<>();
-        for (int i = 1; i < readings.size(); i++) {
-            // find the difference between the ith reading and the (i-1)th
-            differences.add(readings.get(i) - readings.get(i - 1));
-        }
+        final List<Long> differences = calculateDifferences(readings);
         // Do we have all zeroes yet?
         // If so, we're done!
         if (differences.stream().allMatch(d -> d == 0L)) {
@@ -85,6 +76,15 @@ public class Day09Service {
             Long prevValue = firstValue - calculatePreviousValue(differences);
             return prevValue;
         }
+    }
+
+    private static List<Long> calculateDifferences(List<Long> readings) {
+        final List<Long> differences = new ArrayList<>();
+        for (int i = 1; i < readings.size(); i++) {
+            // find the difference between the ith reading and the (i-1)th
+            differences.add(readings.get(i) - readings.get(i - 1));
+        }
+        return differences;
     }
 
     // load inputs line-by-line and extract fields
