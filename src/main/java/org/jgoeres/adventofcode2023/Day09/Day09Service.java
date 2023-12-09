@@ -1,14 +1,16 @@
 package org.jgoeres.adventofcode2023.Day09;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day09Service {
     public boolean DEBUG = false;
 
-    private ArrayList<Integer> inputList = new ArrayList<>();
+    private final List<List<Long>> sensorReadings = new ArrayList<>();
 
     public Day09Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -22,9 +24,15 @@ public class Day09Service {
     public long doPartA() {
         System.out.println("=== DAY 9A ===");
 
-        long result = 0;
-        /** Put problem implementation here **/
-
+        /**
+         * Analyze your OASIS report and extrapolate the next value for each history.
+         * What is the sum of these extrapolated values?
+         **/
+        // Process each set of readings
+        Long result = sensorReadings.stream()
+                .map(this::calculateNextValue)
+                .mapToLong(nextValue -> nextValue)
+                .sum();
         System.out.println("Day 9A: Answer = " + result);
         return result;
     }
@@ -39,21 +47,44 @@ public class Day09Service {
         return result;
     }
 
+    private Long calculateNextValue(final List<Long> readings) {
+        // Make a note of the last known value in this set
+        final Long lastValue = readings.get(readings.size() - 1);
+        final List<Long> differences = new ArrayList<>();
+        for (int i = 1; i < readings.size(); i++) {
+            // find the difference between the ith reading and the (i-1)th
+            differences.add(readings.get(i) - readings.get(i - 1));
+        }
+        // Do we have all zeroes yet?
+        // If so, we're done!
+        if (differences.stream().allMatch(d -> d == 0L)) {
+            return lastValue;
+        } else {
+            Long nextValue = lastValue + calculateNextValue(differences);
+            return nextValue;
+        }
+    }
+
     // load inputs line-by-line and extract fields
     private void loadInputs(String pathToFile) {
-        inputList.clear();
+        sensorReadings.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
             /** Replace this regex **/
-            Pattern p = Pattern.compile("([FB]{7})([LR]{3})");
+            final Pattern p = Pattern.compile("-?\\d+");
+//            10 13 27 64 140 281 549 ...
+//            19 34 52 73 97 124 154 ...
+//            17 26 44 90 198 421 827 ...
             while ((line = br.readLine()) != null) {
                 // process the line.
-                Matcher m = p.matcher(line);
-                if (m.find()) { // If our regex matched this line
+                final Matcher m = p.matcher(line);
+                final List<Long> readings = new ArrayList<>();
+                while (m.find()) { // If our regex matched this line
                     // Parse it
-                    String field1 = m.group(1);
-                    String field2 = m.group(2);
+                    final Long sensorReading = Long.parseLong(m.group(0));
+                    readings.add(sensorReading);
                 }
+                sensorReadings.add(readings);
             }
         } catch (Exception e) {
             System.out.println("Exception occurred: " + e.getMessage());

@@ -3,6 +3,7 @@ package org.jgoeres.adventofcode2023;
 import org.jgoeres.adventofcode2023.Day09.Day09Service;
 import org.jgoeres.adventofcode.common.ToClipboard;
 import org.junit.jupiter.api.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -24,7 +25,7 @@ public class Day09Test {
             day09Service = new Day09Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 2043183816L;
         long result = 0;
         try {
             result = day09Service.doPartA();
@@ -58,7 +59,7 @@ public class Day09Test {
     @Disabled
     public void Day09AExample1() {
         example1Service = new Day09Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
-        final long EXPECTED = 0;
+        final long EXPECTED = 114;
         long result = 0;
         try {
             result = example1Service.doPartA();
