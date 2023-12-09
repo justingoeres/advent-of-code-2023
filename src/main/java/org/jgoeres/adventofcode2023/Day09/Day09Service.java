@@ -23,7 +23,6 @@ public class Day09Service {
 
     public long doPartA() {
         System.out.println("=== DAY 9A ===");
-
         /**
          * Analyze your OASIS report and extrapolate the next value for each history.
          * What is the sum of these extrapolated values?
@@ -39,9 +38,14 @@ public class Day09Service {
 
     public long doPartB() {
         System.out.println("=== DAY 9B ===");
-
-        long result = 0;
-        /** Put problem implementation here **/
+        /**
+         * Analyze your OASIS report again, this time extrapolating the previous value for each history.
+         * What is the sum of these extrapolated values?
+         **/
+        Long result = sensorReadings.stream()
+                .map(this::calculatePreviousValue)
+                .mapToLong(nextValue -> nextValue)
+                .sum();
 
         System.out.println("Day 9B: Answer = " + result);
         return result;
@@ -62,6 +66,24 @@ public class Day09Service {
         } else {
             Long nextValue = lastValue + calculateNextValue(differences);
             return nextValue;
+        }
+    }
+
+    private Long calculatePreviousValue(final List<Long> readings) {
+        // Make a note of the first value in this set
+        final Long firstValue = readings.get(0);
+        final List<Long> differences = new ArrayList<>();
+        for (int i = 1; i < readings.size(); i++) {
+            // find the difference between the ith reading and the (i-1)th
+            differences.add(readings.get(i) - readings.get(i - 1));
+        }
+        // Do we have all zeroes yet?
+        // If so, we're done!
+        if (differences.stream().allMatch(d -> d == 0L)) {
+            return firstValue;
+        } else {
+            Long prevValue = firstValue - calculatePreviousValue(differences);
+            return prevValue;
         }
     }
 
