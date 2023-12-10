@@ -3,6 +3,7 @@ package org.jgoeres.adventofcode2023;
 import org.jgoeres.adventofcode2023.Day10.Day10Service;
 import org.jgoeres.adventofcode.common.ToClipboard;
 import org.junit.jupiter.api.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -14,8 +15,10 @@ public class Day10Test {
 
     // Examples
     private final String EXAMPLE1_INPUT = "data/day10/example1.txt";
+    private final String EXAMPLE2_INPUT = "data/day10/example2.txt";
     private final boolean EXAMPLE_DEBUG = false;
     private Day10Service example1Service = null;
+    private Day10Service example2Service = null;
 
     @Test
     @Order(1)   // Run before Puzzle Part B
@@ -24,7 +27,7 @@ public class Day10Test {
             day10Service = new Day10Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 6875;
         long result = 0;
         try {
             result = day10Service.doPartA();
@@ -58,10 +61,25 @@ public class Day10Test {
     @Disabled
     public void Day10AExample1() {
         example1Service = new Day10Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
-        final long EXPECTED = 0;
+        final long EXPECTED = 4;
         long result = 0;
         try {
             result = example1Service.doPartA();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals(EXPECTED, result);
+    }
+
+    @Test
+    @Order(3)   // Run before Example Part B
+    @Disabled
+    public void Day10AExample2() {
+        example2Service = new Day10Service(EXAMPLE2_INPUT, EXAMPLE_DEBUG);
+        final long EXPECTED = 8;
+        long result = 0;
+        try {
+            result = example2Service.doPartA();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

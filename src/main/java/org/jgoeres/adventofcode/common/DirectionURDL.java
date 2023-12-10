@@ -58,4 +58,20 @@ public enum DirectionURDL {
         }
         return DirectionURDL.values()[newDirection];
     }
+
+    public DirectionURDL opposite() {
+        switch (this) {
+            case UP:
+                return DOWN;
+            case RIGHT:
+                return LEFT;
+            case DOWN:
+                return UP;
+            case LEFT:
+                return RIGHT;
+            default:
+                // this can never happen
+                return null;
+        }
+    }
 }
