@@ -123,7 +123,7 @@ public class Day10Test {
         final long EXPECTED = 4;
         long result = 0;
         try {
-            result = example3Service.doPartB();
+            result = example4Service.doPartB();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

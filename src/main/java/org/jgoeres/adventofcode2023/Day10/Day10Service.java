@@ -174,7 +174,8 @@ public class Day10Service {
                     }
                 }
                 // Record any places we've visited
-                allVisited.addAll(explorersVisited);
+                allVisited.addAll(explorersVisited.stream().filter(xy -> !theLoop.containsKey(xy.toString()))
+                        .collect(Collectors.toSet()));
                 // Remove any neighbors we've already visited
                 nextExplorers = neighbors.stream()
                         .filter(xy -> (!explorersVisited.contains(xy)
