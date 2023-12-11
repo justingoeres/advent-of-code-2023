@@ -15,7 +15,7 @@ public class Day11Test {
 
     // Examples
     private final String EXAMPLE1_INPUT = "data/day11/example1.txt";
-    private final boolean EXAMPLE_DEBUG = true;
+    private final boolean EXAMPLE_DEBUG = false;
     private Day11Service example1Service = null;
 
     @Test
@@ -25,7 +25,7 @@ public class Day11Test {
             day11Service = new Day11Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 9214785;
+        final long EXPECTED = 9214785L;
         long result = 0;
         try {
             result = day11Service.doPartA();
@@ -43,11 +43,10 @@ public class Day11Test {
             day11Service = new Day11Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        // 613687601106 too high
-        final long EXPECTED = 613686987427;
+        final long EXPECTED = 613686987427L;
         long result = 0;
         try {
-            result = day11Service.doPartB();
+            result = day11Service.doPartB(1000000L);
             ToClipboard.set(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -78,10 +77,9 @@ public class Day11Test {
         if (example1Service == null) example1Service = new Day11Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
 
         final long EXPECTED = 8410;
-//        final long EXPECTED = 1030;
         long result = 0;
         try {
-            result = example1Service.doPartB();
+            result = example1Service.doPartB(100L);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
