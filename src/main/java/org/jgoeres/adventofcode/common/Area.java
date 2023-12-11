@@ -10,8 +10,8 @@ public class Area {
     }
 
     public Boolean contains(XYPoint xy) {
-        final Boolean withinX = xContains(xy.getX());
-        final Boolean withinY = yContains(xy.getY());
+        final Boolean withinX = xContains((int) xy.getX());
+        final Boolean withinY = yContains((int) xy.getY());
         return withinX && withinY;
     }
 

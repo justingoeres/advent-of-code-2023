@@ -15,7 +15,7 @@ public class Day11Test {
 
     // Examples
     private final String EXAMPLE1_INPUT = "data/day11/example1.txt";
-    private final boolean EXAMPLE_DEBUG = false;
+    private final boolean EXAMPLE_DEBUG = true;
     private Day11Service example1Service = null;
 
     @Test
@@ -43,7 +43,8 @@ public class Day11Test {
             day11Service = new Day11Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        // 613687601106 too high
+        final long EXPECTED = 613686987427;
         long result = 0;
         try {
             result = day11Service.doPartB();
@@ -76,7 +77,8 @@ public class Day11Test {
         // Instantiate the service if Part A was skipped
         if (example1Service == null) example1Service = new Day11Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 8410;
+//        final long EXPECTED = 1030;
         long result = 0;
         try {
             result = example1Service.doPartB();
