@@ -1,16 +1,21 @@
 package org.jgoeres.adventofcode.common;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Objects;
 
 import static org.jgoeres.adventofcode.common.Direction8Way.*;
 
+@Getter
+@Setter
 public class XYPoint {
     public static final XYPoint ORIGIN_XY = new XYPoint(0, 0);
 
-    private int x = 0;
-    private int y = 0;
+    private long x = 0;
+    private long y = 0;
 
-    public XYPoint(int x, int y) {
+    public XYPoint(long x, long y) {
         this.x = x;
         this.y = y;
     }
@@ -19,25 +24,9 @@ public class XYPoint {
         // Create at 0,0
     }
 
-    public void set(int x, int y) {
+    public void set(long x, long y) {
         setX(x);
         setY(y);
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     public XYPoint getRelativeLocation(Direction8Way directionURDL) {

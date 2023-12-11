@@ -1,30 +1,27 @@
 package org.jgoeres.adventofcode.common;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
+@Setter
 public class XYZPoint extends XYPoint {
     public static final XYZPoint ORIGIN_XYZ = new XYZPoint(0, 0, 0);
 
-    private int z = 0;
+    private long z = 0;
 
-    public XYZPoint(int x, int y, int z) {
+    public XYZPoint(long x, long y, long z) {
         super(x, y);
         this.z = z;
     }
 
     public XYZPoint() {
         // Create at 0, 0, 0
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    public void setZ(int z) {
-        this.z = z;
     }
 
     @Override
@@ -58,10 +55,10 @@ public class XYZPoint extends XYPoint {
 
     public XYZPoint rotate(final Axis axis, final Integer times) {
         // return this point, rotated 90 degrees about the given axis, the given number of times
-        for (int i = 0; i < times; i++) {
-            Integer x = this.getX();
-            Integer y = this.getY();
-            Integer z = this.getZ();
+        for (long i = 0; i < times; i++) {
+            Long x = this.getX();
+            Long y = this.getY();
+            Long z = this.getZ();
             switch (axis) {
                 case X_AXIS:
                     this.setY(-1 * z);
