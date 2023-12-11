@@ -10,15 +10,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Day10Test {
     // Puzzle
     private final String PUZZLE_INPUT = "data/day10/input.txt";
-    private final boolean PUZZLE_DEBUG = false;
+    private final boolean PUZZLE_DEBUG = true;
     private Day10Service day10Service = null;
 
     // Examples
     private final String EXAMPLE1_INPUT = "data/day10/example1.txt";
     private final String EXAMPLE2_INPUT = "data/day10/example2.txt";
-    private final boolean EXAMPLE_DEBUG = false;
+    private final String EXAMPLE3_INPUT = "data/day10/example3.txt";
+    private final String EXAMPLE4_INPUT = "data/day10/example4.txt";
+    private final boolean EXAMPLE_DEBUG = true;
     private Day10Service example1Service = null;
     private Day10Service example2Service = null;
+    private Day10Service example3Service = null;
+    private Day10Service example4Service = null;
 
     @Test
     @Order(1)   // Run before Puzzle Part B
@@ -44,6 +48,8 @@ public class Day10Test {
         if (day10Service == null) {
             day10Service = new Day10Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
+
+        if (PUZZLE_DEBUG) day10Service.doPartA();
 
         final long EXPECTED = 0;
         long result = 0;
@@ -89,14 +95,35 @@ public class Day10Test {
     @Test
     @Order(4)   // Run after Example Part A
     @Disabled
-    public void Day10BExample1() {
+    public void Day10BExample3() {
         // Instantiate the service if Part A was skipped
-        if (example1Service == null) example1Service = new Day10Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
+        if (example3Service == null) example3Service = new Day10Service(EXAMPLE3_INPUT, EXAMPLE_DEBUG);
 
-        final long EXPECTED = 0;
+        if (EXAMPLE_DEBUG) example3Service.doPartA();
+
+        final long EXPECTED = 4;
         long result = 0;
         try {
-            result = example1Service.doPartB();
+            result = example3Service.doPartB();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals(EXPECTED, result);
+    }
+    
+    @Test
+    @Order(4)   // Run after Example Part A
+    @Disabled
+    public void Day10BExample4() {
+        // Instantiate the service if Part A was skipped
+        if (example4Service == null) example4Service = new Day10Service(EXAMPLE4_INPUT, EXAMPLE_DEBUG);
+
+        if (EXAMPLE_DEBUG) example4Service.doPartA();
+
+        final long EXPECTED = 4;
+        long result = 0;
+        try {
+            result = example3Service.doPartB();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

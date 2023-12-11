@@ -87,6 +87,7 @@ public class Pipe {
 }
 
 enum PipeType {
+    EMPTY('.'),
     START('S'),
     VERT('|'),
     HORIZ('-'),
