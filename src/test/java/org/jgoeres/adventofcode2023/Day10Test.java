@@ -2,6 +2,7 @@ package org.jgoeres.adventofcode2023;
 
 import org.jgoeres.adventofcode2023.Day10.Day10Service;
 import org.jgoeres.adventofcode.common.ToClipboard;
+import org.jgoeres.adventofcode2023.Day10.Day10Service.Answers;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,22 +11,47 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class Day10Test {
     // Puzzle
     private final String PUZZLE_INPUT = "data/day10/input.txt";
-    private final boolean PUZZLE_DEBUG = true;
-    private Day10Service day10Service = null;
+    private final boolean PUZZLE_DEBUG = false;
+    private Day10Service day10Service = new Day10Service(PUZZLE_INPUT, PUZZLE_DEBUG);
 
     // Examples
     private final String EXAMPLE1_INPUT = "data/day10/example1.txt";
     private final String EXAMPLE2_INPUT = "data/day10/example2.txt";
     private final String EXAMPLE3_INPUT = "data/day10/example3.txt";
     private final String EXAMPLE4_INPUT = "data/day10/example4.txt";
-    private final boolean EXAMPLE_DEBUG = true;
+    private final String EXAMPLE5_INPUT = "data/day10/example5.txt";
+    private final boolean EXAMPLE_DEBUG = false;
     private Day10Service example1Service = null;
     private Day10Service example2Service = null;
     private Day10Service example3Service = null;
     private Day10Service example4Service = null;
+    private Day10Service example5Service = null;
 
     @Test
     @Order(1)   // Run before Puzzle Part B
+    public void BothParts() {
+        if (day10Service == null) {
+            day10Service = new Day10Service(PUZZLE_INPUT, PUZZLE_DEBUG);
+        }
+
+        final long PART_A_EXPECTED = 6875;
+        final long PART_B_EXPECTED = 471;
+
+
+        Answers answers = new Answers();
+        try {
+            answers = day10Service.doPuzzle();
+//            ToClipboard.set(result);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals(PART_A_EXPECTED, answers.getPartA());
+        assertEquals(PART_B_EXPECTED, answers.getPartB());
+    }
+
+    @Test
+    @Order(1)   // Run before Puzzle Part B
+    @Disabled
     public void Day10A() {
         if (day10Service == null) {
             day10Service = new Day10Service(PUZZLE_INPUT, PUZZLE_DEBUG);
@@ -44,6 +70,7 @@ public class Day10Test {
 
     @Test
     @Order(2)   // Run after Puzzle Part A
+    @Disabled
     public void Day10B() {
         if (day10Service == null) {
             day10Service = new Day10Service(PUZZLE_INPUT, PUZZLE_DEBUG);
@@ -51,7 +78,7 @@ public class Day10Test {
 
         if (PUZZLE_DEBUG) day10Service.doPartA();
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 471;
         long result = 0;
         try {
             result = day10Service.doPartB();
@@ -110,7 +137,7 @@ public class Day10Test {
         }
         assertEquals(EXPECTED, result);
     }
-    
+
     @Test
     @Order(4)   // Run after Example Part A
     @Disabled
@@ -124,6 +151,25 @@ public class Day10Test {
         long result = 0;
         try {
             result = example4Service.doPartB();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals(EXPECTED, result);
+    }
+
+    @Test
+    @Order(4)   // Run after Example Part A
+    @Disabled
+    public void Day10BExample5() {
+        // Instantiate the service if Part A was skipped
+        if (example5Service == null) example5Service = new Day10Service(EXAMPLE5_INPUT, EXAMPLE_DEBUG);
+
+        if (EXAMPLE_DEBUG) example5Service.doPartA();
+
+        final long EXPECTED = 8;
+        long result = 0;
+        try {
+            result = example5Service.doPartB();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
