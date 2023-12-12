@@ -1,17 +1,14 @@
 package org.jgoeres.adventofcode2023.Day10;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jgoeres.adventofcode.common.DirectionURDL;
-import org.jgoeres.adventofcode.common.Rotation;
 import org.jgoeres.adventofcode.common.Utils.Pair;
 import org.jgoeres.adventofcode.common.XYPoint;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.jgoeres.adventofcode.common.DirectionURDL.*;
@@ -23,7 +20,6 @@ public class Day10Service {
 
     private Map<String, Pipe> pipes = new HashMap();
     private Map<String, Pipe> theLoop = new HashMap<>();
-    private Set<XYPoint> empties = new HashSet<>();
     private Pipe start;
     public static final char EMPTY_CHAR = '.';
     private Integer xMax;
@@ -96,7 +92,6 @@ public class Day10Service {
             }
         }
         // Populate "the loop" for Part B with all the pipes we just visited
-
         theLoop.putAll(visited.stream().collect(Collectors.toMap(pipe -> pipe.getXy().toString(), pipe -> pipe)));
         System.out.println("Day 10A: Furthest distance from Start = " + stepCount);
         return stepCount;
@@ -106,13 +101,7 @@ public class Day10Service {
     public long doPartB() {
         System.out.println("=== DAY 10B ===");
 //        printTheLoop();
-        Set<XYPoint> insides = new HashSet<>();
-        final Set<PipeType> pipeTypeCheck = Set.of(VERT,
-                NORTH_EAST,
-                NORTH_WEST,
-                SOUTH_WEST,
-                SOUTH_EAST);
-        long result = 0;
+
         /**
          * Figure out whether you have time to search for the nest by calculating the area within the loop.
          * How many tiles are enclosed by the loop?
@@ -145,14 +134,6 @@ public class Day10Service {
                 // this will never happen; 'start' is always something
         }
 
-//        // Figure out whether we're headed clockwise or counter-clockwise
-//        // Look to the 'right' relative to where we're facing
-//        final ThingFound startSeeing = lookInDirection(start.getXy(), facing.rotate(CLOCKWISE));
-//        final Rotation directionAround = (startSeeing == PIPE) ? CLOCKWISE : COUNTERCLOCKWISE;
-//
-//        // Now we know where we are, how we're facing, and what direction we're going around.
-//        // We're ready to travel!
-
         // Now we travel.
         // As we go, look left and right. One of those sides will (eventually) see
         // a BOUNDARY. When that happens, we know that side is OUTSIDE.
@@ -164,8 +145,8 @@ public class Day10Service {
         Set<String> visited = new HashSet<>();
         while (!done) {
             visited.add(current.toString());   // Record that we were here
-            final ThingFound foundOnLeft = lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
-            final ThingFound foundOnRight = lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+            final ThingFound foundOnLeft = lookInDirection(current, getLookDirection(facing, LEFT), onLeft);
+            final ThingFound foundOnRight = lookInDirection(current, getLookDirection(facing, RIGHT), onRight);
 
             if (foundOnLeft == BOUNDARY) {
                 // If we ever see a Boundary on the Left, then the Right is Inside
@@ -178,23 +159,23 @@ public class Day10Service {
             switch (currentPipe.getType()) {
                 case NORTH_EAST:
                     facing = (facing == LEFT) ? UP : RIGHT;
-                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
-                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    lookInDirection(current, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, getLookDirection(facing, RIGHT), onRight);
                     break;
                 case NORTH_WEST:
                     facing = (facing == RIGHT) ? UP : LEFT;
-                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
-                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    lookInDirection(current, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, getLookDirection(facing, RIGHT), onRight);
                     break;
                 case SOUTH_EAST:
                     facing = (facing == LEFT) ? DOWN : RIGHT;
-                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
-                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    lookInDirection(current, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, getLookDirection(facing, RIGHT), onRight);
                     break;
                 case SOUTH_WEST:
                     facing = (facing == RIGHT) ? DOWN : LEFT;
-                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
-                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    lookInDirection(current, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, getLookDirection(facing, RIGHT), onRight);
                     break;
                 default:
                     // We don't change direction, don't need to look
@@ -205,7 +186,7 @@ public class Day10Service {
             // Stop when we get back to the start
             done = (visited.contains(current.toString()));
         }
-        result = (insideOn == LEFT) ? onLeft.size() : onRight.size();
+        final long result = (insideOn == LEFT) ? onLeft.size() : onRight.size();
         System.out.printf("Day 10B: Number of empty spaces found inside the loop (on the %s) = %d", insideOn, result);
         return result;
     }
@@ -221,10 +202,10 @@ public class Day10Service {
             case LEFT:
                 return (look == LEFT) ? DOWN : UP;
         }
-        return null;        // This won't happen
+        return null;    // This won't happen
     }
 
-    private ThingFound lookInDirection(final XYPoint xy0, final DirectionURDL facing, final DirectionURDL looking, final Set<String> seen) {
+    private ThingFound lookInDirection(final XYPoint xy0, final DirectionURDL looking, final Set<String> seen) {
 
         XYPoint xy = new XYPoint(xy0.getX(), xy0.getY());
 
@@ -248,161 +229,11 @@ public class Day10Service {
         }
     }
 
-
-
-        /*  THIS WAS THE RASTER-LIKE SCANNING APPROACH
-        for (XYPoint emptyCell : empties) {
-            // For each empty, scan in from the left (x=0) until we hit the cell.
-            // As we go, count the number of |F7LJ's we hit.
-            // If that number is ODD when we hit the target cell, it's INSIDE
-            // If that number is EVEN, it's OUTSIDE.
-            Integer vertCount = 0;
-            Integer elbowCount = 0;
-            final Long y = emptyCell.getY();
-            final XYPoint xyCheck = new XYPoint(0, y);
-            for (Long x = 0L; x < emptyCell.getX(); x++) {
-                xyCheck.setX(x);
-                if (theLoop.containsKey(xyCheck.toString())) {
-                    // We hit a piece of the loop
-                    PipeType loopPieceType = theLoop.get(xyCheck.toString()).getType();
-                    if (pipeTypeCheck.contains(loopPieceType)) {
-                        if (loopPieceType == VERT) {
-                            vertCount++;
-                        } else {
-                            // it's an elbow
-                            elbowCount++;
-                        }
-                    }
-                }
-            }
-            // Once we've reached the empty cell, if we passed an ODD number of loop pieces, we're INSIDE
-            if ((vertCount + elbowCount / 2) % 2 == 1) insides.add(emptyCell);
-        }
-
-        return insides.size();
-        */
-       /*
-        // Note we only care about *empty* locations, nothing with a pipe in it
-        // We also only care about things enclosed by *the loop*. So we can take the
-        // empties and forget all the non-loop-connected pipes.
-        //
-        // The trick is just handling the 'squeezing through' bits
-
-        // Clone the set of empties. There's probably a better way to do this.
-        Set<XYPoint> insides = empties.stream().collect(Collectors.toSet());
-        Set<XYPoint> explorers = new HashSet();
-        Set<XYPoint> nextExplorers = new HashSet();
-        Pair<Set<XYPoint>> explorersPair = new Pair(explorers, nextExplorers);
-        Set<XYPoint> allVisited = new HashSet<>();
-        Set<XYPoint> explorersVisited = new HashSet<>();
-        explorersVisited.clear();
-
-        for (XYPoint nextEmpty : empties) {
-            // If we've already been here, just skip to the next one
-            if (allVisited.contains(nextEmpty)) continue;
-
-            // For each empty, fill outward until we hit either an edge or a part of theLoop
-            // When we're out of places to go, check and see if we hit an edge. If we did,
-            // then all the points we visited are OUTSIDE the loop and can be removed from 'insides'
-            explorers.clear();
-            explorers.add(nextEmpty); // start from the current empty
-            explorersVisited.clear();
-            explorersVisited.add(nextEmpty);
-            Boolean done = false;
-
-            System.out.printf("Checking from %s\n", nextEmpty);
-            while (!done) {
-                Set<XYPoint> neighbors = new HashSet<>();
-                for (XYPoint explorer : explorers) {
-                    // Get all the surrounding points of this xy
-                    explorersVisited.add(explorer);
-                    PipeType explorerType = theLoop.containsKey(explorer.toString()) ? theLoop.get(explorer.toString()).getType() : PipeType.EMPTY;
-                    switch (explorerType) {
-                        // populate nextExplorers based on valid neighbors given what kind of pipe we're on (or empty)
-                        case START:
-                            // don't go anywhere from the start, let other explorers take care of it
-                            break;
-                        case EMPTY:
-                            neighbors.add(explorer.getRelativeLocation8Way(UP));
-                            neighbors.add(explorer.getRelativeLocation8Way(RIGHT));
-                            neighbors.add(explorer.getRelativeLocation8Way(DOWN));
-                            neighbors.add(explorer.getRelativeLocation8Way(LEFT));
-                            break;
-                        case VERT:
-                            // Can't go across a vertical pipe
-                            neighbors.add(explorer.getRelativeLocation8Way(UP));
-                            neighbors.add(explorer.getRelativeLocation8Way(DOWN));
-                            break;
-                        case HORIZ:
-                            // Can't go across a horizontal pipe
-                            neighbors.add(explorer.getRelativeLocation8Way(RIGHT));
-                            neighbors.add(explorer.getRelativeLocation8Way(LEFT));
-                            break;
-                        case NORTH_EAST:    // L
-                            // How to handle this? We can't cross it but doesn't direction matter?
-                            // Can go up or right, but not down or left?
-                            neighbors.add(explorer.getRelativeLocation8Way(UP));
-                            neighbors.add(explorer.getRelativeLocation8Way(RIGHT));
-                            break;
-                        case NORTH_WEST:    // J
-                            // Can go up or left
-                            neighbors.add(explorer.getRelativeLocation8Way(UP));
-                            neighbors.add(explorer.getRelativeLocation8Way(LEFT));
-                            break;
-                        case SOUTH_WEST:    // 7
-                            // Can go down or left
-                            neighbors.add(explorer.getRelativeLocation8Way(DOWN));
-                            neighbors.add(explorer.getRelativeLocation8Way(LEFT));
-                            break;
-                        case SOUTH_EAST:
-                            // Can go down or right
-                            neighbors.add(explorer.getRelativeLocation8Way(RIGHT));
-                            neighbors.add(explorer.getRelativeLocation8Way(DOWN));
-                            break;
-                    }
-                }
-                // Record any places we've visited
-                allVisited.addAll(explorersVisited.stream().filter(xy -> !theLoop.containsKey(xy.toString()))
-                        .collect(Collectors.toSet()));
-                // Remove any neighbors we've already visited
-                nextExplorers = neighbors.stream()
-                        .filter(xy -> (!explorersVisited.contains(xy)
-                                && xy.getX() >= 0 && xy.getX() < xMax
-                                && xy.getY() >= 0 && xy.getY() < yMax))
-                        .collect(Collectors.toSet());
-//                explorersPair.swap();
-//                explorers = explorersPair.getFirst();
-//                nextExplorers = explorersPair.getSecond();
-                explorers = nextExplorers;
-
-                // Check to see if we're done.
-                // Go until we've been everywhere we can reach?
-                done = explorers.isEmpty();
-            }
-            // Did any of our explorers reach an edge?
-            Integer oldInsidesSize = insides.size();
-            if (explorersVisited.stream().anyMatch(xyPoint -> xyPoint.getX() == 0 || xyPoint.getX() == (xMax - 1)
-                    || xyPoint.getY() == 0 || xyPoint.getY() == (yMax - 1))) {
-                // We reached an edge, so remove all of those from 'insides' because they're not 'inside'!
-                insides.removeAll(explorersVisited);
-                System.out.printf("%d points visited; insides was %d, is now %d\n", explorersVisited.size(), oldInsidesSize, insides.size());
-            }
-            System.out.println("Going to next empty");
-        }
-        result = insides.size();
-        System.out.println("Day 10B: Answer = " + result);
-        return result;
-
-    }
-        */
-
     // load inputs line-by-line and extract fields
     private void loadInputs(String pathToFile) {
         pipes.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(pathToFile))) {
             String line;
-            /** Replace this regex **/
-            Pattern p = Pattern.compile("([FB]{7})([LR]{3})");
             Integer y = 0;
             while ((line = br.readLine()) != null) {
                 xMax = line.length();
@@ -416,9 +247,6 @@ public class Day10Service {
                         Pipe newPipe = new Pipe(type, xy);
                         pipes.put(xy.toString(), newPipe);
                         if (type == START) start = newPipe;
-                    } else {
-                        // It's empty, so add it to that Set
-                        empties.add(xy);
                     }
                 }
                 y++;
@@ -427,7 +255,6 @@ public class Day10Service {
             // Now that we've got all the pipes, connect them up to each other
             for (Pipe pipe : pipes.values()) {
                 XYPoint xy = pipe.getXy();
-//                System.out.printf("%d\t%s\n", i, xy);
                 switch (pipe.getType()) {
                     case START:
                         // do nothing, the other connections will take care of the start
@@ -478,9 +305,7 @@ public class Day10Service {
             for (int x = 0; x < xMax; x++) {
                 xy.set(x, y);
                 Character out;
-                if (empties.contains(xy)) {
-                    out = EMPTY_CHAR;
-                } else if (theLoop.containsKey(xy.toString())) {
+                if (theLoop.containsKey(xy.toString())) {
                     out = theLoop.get(xy.toString()).getType().label;
                 } else {
                     out = ' ';    // print a space if nothing is there
@@ -490,10 +315,6 @@ public class Day10Service {
             System.out.println(line);
         }
     }
-//    private void makePipeConnection(XYPoint xy, PipeType type) {
-//        // Make a new pipe segment & connect it
-//        XYPoint location = pipes.containsKey(xy) ? pipes.get(xy) :
-//    }
 }
 
 enum ThingFound {
