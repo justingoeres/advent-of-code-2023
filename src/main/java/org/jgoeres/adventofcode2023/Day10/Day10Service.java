@@ -1,5 +1,8 @@
 package org.jgoeres.adventofcode2023.Day10;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jgoeres.adventofcode.common.DirectionURDL;
 import org.jgoeres.adventofcode.common.Rotation;
 import org.jgoeres.adventofcode.common.Utils.Pair;
@@ -19,13 +22,12 @@ public class Day10Service {
     public boolean DEBUG = false;
 
     private Map<String, Pipe> pipes = new HashMap();
-    private Map<String, Pipe> theLoop;
+    private Map<String, Pipe> theLoop = new HashMap<>();
     private Set<XYPoint> empties = new HashSet<>();
     private Pipe start;
     public static final char EMPTY_CHAR = '.';
     private Integer xMax;
     private Integer yMax;
-
 
     public Day10Service(String pathToFile) {
         loadInputs(pathToFile);
@@ -34,6 +36,20 @@ public class Day10Service {
     public Day10Service(String pathToFile, boolean debug) {
         loadInputs(pathToFile);
         DEBUG = debug;
+    }
+
+    @Getter
+    @Setter
+    public static class Answers {
+        Long partA;
+        Long partB;
+    }
+
+    public Answers doPuzzle() {
+        final Answers answers = new Answers();
+        answers.setPartA(doPartA());
+        answers.setPartB(doPartB());
+        return answers;
     }
 
     public long doPartA() {
@@ -81,7 +97,7 @@ public class Day10Service {
         }
         // Populate "the loop" for Part B with all the pipes we just visited
 
-        theLoop = visited.stream().collect(Collectors.toMap(pipe -> pipe.getXy().toString(), pipe -> pipe));
+        theLoop.putAll(visited.stream().collect(Collectors.toMap(pipe -> pipe.getXy().toString(), pipe -> pipe)));
         System.out.println("Day 10A: Furthest distance from Start = " + stepCount);
         return stepCount;
     }
