@@ -107,10 +107,6 @@ public class Day10Service {
          * How many tiles are enclosed by the loop?
          **/
 
-        // Next try: Start at 'start' and go around the loop clockwise.
-        // At each step, look to the right. Every empty we see in that direction
-        // is INSIDE until we hit some kind of pipe segment.
-
         Boolean done = false;
         XYPoint current = start.getXy();
 
