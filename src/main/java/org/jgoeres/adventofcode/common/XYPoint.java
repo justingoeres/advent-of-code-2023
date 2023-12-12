@@ -32,8 +32,26 @@ public class XYPoint {
     public XYPoint getRelativeLocation(Direction8Way directionURDL) {
         return getRelativeLocation(1, directionURDL);
     }
+    public XYPoint getRelativeLocation(DirectionURDL directionURDL) {
+        return getRelativeLocation(1, directionURDL);
+    }
 
     public XYPoint getRelativeLocation(int numSteps, Direction8Way directionURDL) {
+        switch (directionURDL) {
+            case UP:
+                // Default negative-Y direction is UP
+                return (new XYPoint(getX(), getY() - numSteps));
+            case RIGHT:
+                return (new XYPoint(getX() + numSteps, getY()));
+            case DOWN:
+                // Default positive-Y direction is DOWN
+                return (new XYPoint(getX(), getY() + numSteps));
+            case LEFT:
+                return (new XYPoint(getX() - numSteps, getY()));
+        }
+        return null;
+    }
+    public XYPoint getRelativeLocation(int numSteps, DirectionURDL directionURDL) {
         switch (directionURDL) {
             case UP:
                 // Default negative-Y direction is UP
@@ -129,6 +147,25 @@ public class XYPoint {
 
     public void moveRelative(int numSteps, DirectionURDL directionURDL) {
         switch (directionURDL) {
+            case UP:
+                // Default negative-Y direction is UP
+                setY(y - numSteps);
+                break;
+            case RIGHT:
+                setX(x + numSteps);
+                break;
+            case DOWN:
+                // Default positive-Y direction is DOWN
+                setY(y + numSteps);
+                break;
+            case LEFT:
+                setX(x - numSteps);
+                break;
+        }
+    }
+
+    public void moveRelative(int numSteps, Direction8Way direction8Way) {
+        switch (direction8Way) {
             case UP:
                 // Default negative-Y direction is UP
                 setY(y - numSteps);

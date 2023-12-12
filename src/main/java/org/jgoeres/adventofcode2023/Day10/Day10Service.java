@@ -1,6 +1,7 @@
 package org.jgoeres.adventofcode2023.Day10;
 
-import org.jgoeres.adventofcode.common.Direction8Way;
+import org.jgoeres.adventofcode.common.DirectionURDL;
+import org.jgoeres.adventofcode.common.Rotation;
 import org.jgoeres.adventofcode.common.Utils.Pair;
 import org.jgoeres.adventofcode.common.XYPoint;
 
@@ -10,8 +11,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.jgoeres.adventofcode.common.Direction8Way.*;
+import static org.jgoeres.adventofcode.common.DirectionURDL.*;
 import static org.jgoeres.adventofcode2023.Day10.PipeType.*;
+import static org.jgoeres.adventofcode2023.Day10.ThingFound.*;
 
 public class Day10Service {
     public boolean DEBUG = false;
@@ -20,7 +22,7 @@ public class Day10Service {
     private Map<String, Pipe> theLoop;
     private Set<XYPoint> empties = new HashSet<>();
     private Pipe start;
-    public static final char EMPTY = '.';
+    public static final char EMPTY_CHAR = '.';
     private Integer xMax;
     private Integer yMax;
 
@@ -87,13 +89,183 @@ public class Day10Service {
 
     public long doPartB() {
         System.out.println("=== DAY 10B ===");
-
+//        printTheLoop();
+        Set<XYPoint> insides = new HashSet<>();
+        final Set<PipeType> pipeTypeCheck = Set.of(VERT,
+                NORTH_EAST,
+                NORTH_WEST,
+                SOUTH_WEST,
+                SOUTH_EAST);
         long result = 0;
         /**
          * Figure out whether you have time to search for the nest by calculating the area within the loop.
          * How many tiles are enclosed by the loop?
          **/
 
+        // Next try: Start at 'start' and go around the loop clockwise.
+        // At each step, look to the right. Every empty we see in that direction
+        // is INSIDE until we hit some kind of pipe segment.
+
+        Boolean done = false;
+        XYPoint current = start.getXy();
+
+        // Pick a direction to start
+        DirectionURDL facing;
+        switch (start.getType()) {
+            case HORIZ:
+            case NORTH_EAST:
+            case SOUTH_EAST: // my 'start' is one of these
+                facing = RIGHT;
+                break;
+            case NORTH_WEST:
+            case SOUTH_WEST:
+                facing = LEFT;
+                break;
+            case VERT:
+                facing = UP;
+                break;
+            default:
+                facing = UP;
+                // this will never happen; 'start' is always something
+        }
+
+//        // Figure out whether we're headed clockwise or counter-clockwise
+//        // Look to the 'right' relative to where we're facing
+//        final ThingFound startSeeing = lookInDirection(start.getXy(), facing.rotate(CLOCKWISE));
+//        final Rotation directionAround = (startSeeing == PIPE) ? CLOCKWISE : COUNTERCLOCKWISE;
+//
+//        // Now we know where we are, how we're facing, and what direction we're going around.
+//        // We're ready to travel!
+
+        // Now we travel.
+        // As we go, look left and right. One of those sides will (eventually) see
+        // a BOUNDARY. When that happens, we know that side is OUTSIDE.
+
+        final Set<String> onLeft = new HashSet<>();
+        final Set<String> onRight = new HashSet<>();
+        DirectionURDL insideOn = LEFT;
+
+        Set<String> visited = new HashSet<>();
+        while (!done) {
+            visited.add(current.toString());   // Record that we were here
+            final ThingFound foundOnLeft = lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
+            final ThingFound foundOnRight = lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+
+            if (foundOnLeft == BOUNDARY) {
+                // If we ever see a Boundary on the Left, then the Right is Inside
+                insideOn = RIGHT;
+            }
+
+            // Now move to the next segment
+            final Pipe currentPipe = theLoop.get(current.toString());
+            // Turn if we need to, and look again
+            switch (currentPipe.getType()) {
+                case NORTH_EAST:
+                    facing = (facing == LEFT) ? UP : RIGHT;
+                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    break;
+                case NORTH_WEST:
+                    facing = (facing == RIGHT) ? UP : LEFT;
+                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    break;
+                case SOUTH_EAST:
+                    facing = (facing == LEFT) ? DOWN : RIGHT;
+                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    break;
+                case SOUTH_WEST:
+                    facing = (facing == RIGHT) ? DOWN : LEFT;
+                    lookInDirection(current, facing, getLookDirection(facing, LEFT), onLeft);
+                    lookInDirection(current, facing, getLookDirection(facing, RIGHT), onRight);
+                    break;
+                default:
+                    // We don't change direction, don't need to look
+                    break;
+            }
+            // Move
+            current.moveRelative(1, facing);
+            // Stop when we get back to the start
+            done = (visited.contains(current.toString()));
+        }
+        result = (insideOn == LEFT) ? onLeft.size() : onRight.size();
+        System.out.printf("Day 10B: Number of empty spaces found inside the loop (on the %s) = %d", insideOn, result);
+        return result;
+    }
+
+    private DirectionURDL getLookDirection(DirectionURDL facing, DirectionURDL look) {
+        switch (facing) {
+            case UP:
+                return (look == LEFT) ? LEFT : RIGHT;
+            case RIGHT:
+                return (look == LEFT) ? UP : DOWN;
+            case DOWN:
+                return (look == LEFT) ? RIGHT : LEFT;
+            case LEFT:
+                return (look == LEFT) ? DOWN : UP;
+        }
+        return null;        // This won't happen
+    }
+
+    private ThingFound lookInDirection(final XYPoint xy0, final DirectionURDL facing, final DirectionURDL looking, final Set<String> seen) {
+
+        XYPoint xy = new XYPoint(xy0.getX(), xy0.getY());
+
+        // Scan from xy0 in the specified direction, and return
+        // what we see first: a boundary or a pipe
+        while (true) {      // go until we hit the pipe or a boundary
+            xy.moveRelative(1, looking);
+            if (theLoop.containsKey(xy.toString())) {
+                // If we see a part of the loop, return that
+                return PIPE;
+            } else if (xy.getX() >= xMax
+                    || xy.getX() < 0
+                    || xy.getY() >= yMax
+                    || xy.getY() < 0) {
+                // If we've hit the boundary
+                return BOUNDARY;
+            } else {
+                // If we see an EMPTY, add it to what we've seen and keep going
+                seen.add(xy.toString());
+            }
+        }
+    }
+
+
+
+        /*  THIS WAS THE RASTER-LIKE SCANNING APPROACH
+        for (XYPoint emptyCell : empties) {
+            // For each empty, scan in from the left (x=0) until we hit the cell.
+            // As we go, count the number of |F7LJ's we hit.
+            // If that number is ODD when we hit the target cell, it's INSIDE
+            // If that number is EVEN, it's OUTSIDE.
+            Integer vertCount = 0;
+            Integer elbowCount = 0;
+            final Long y = emptyCell.getY();
+            final XYPoint xyCheck = new XYPoint(0, y);
+            for (Long x = 0L; x < emptyCell.getX(); x++) {
+                xyCheck.setX(x);
+                if (theLoop.containsKey(xyCheck.toString())) {
+                    // We hit a piece of the loop
+                    PipeType loopPieceType = theLoop.get(xyCheck.toString()).getType();
+                    if (pipeTypeCheck.contains(loopPieceType)) {
+                        if (loopPieceType == VERT) {
+                            vertCount++;
+                        } else {
+                            // it's an elbow
+                            elbowCount++;
+                        }
+                    }
+                }
+            }
+            // Once we've reached the empty cell, if we passed an ODD number of loop pieces, we're INSIDE
+            if ((vertCount + elbowCount / 2) % 2 == 1) insides.add(emptyCell);
+        }
+
+        return insides.size();
+        */
+       /*
         // Note we only care about *empty* locations, nothing with a pipe in it
         // We also only care about things enclosed by *the loop*. So we can take the
         // empties and forget all the non-loop-connected pipes.
@@ -204,7 +376,9 @@ public class Day10Service {
         result = insides.size();
         System.out.println("Day 10B: Answer = " + result);
         return result;
+
     }
+        */
 
     // load inputs line-by-line and extract fields
     private void loadInputs(String pathToFile) {
@@ -220,7 +394,7 @@ public class Day10Service {
                 for (int x = 0; x < line.length(); x++) {
                     char pipeChar = line.charAt(x);
                     XYPoint xy = new XYPoint(x, y);
-                    if (pipeChar != EMPTY) {
+                    if (pipeChar != EMPTY_CHAR) {
                         // First, just create the pipes but don't attach them
                         PipeType type = PipeType.fromChar(pipeChar);
                         Pipe newPipe = new Pipe(type, xy);
@@ -270,7 +444,9 @@ public class Day10Service {
                         System.out.println("weird type:\t" + pipe.getXy());
                 }
             }
-            // Check for anything with too many connectios
+            // Identify the type of START
+            start.identifyType();
+            // Check for anything with too many connections
             pipes.values().stream().filter(pipe -> pipe.getConnections().size() > 2).forEach(pipe -> System.out.printf("%s\t%d\n", pipe.getXy(), pipe.getConnections().size()));
         } catch (
                 Exception e) {
@@ -278,9 +454,34 @@ public class Day10Service {
         }
     }
 
-
+    private void printTheLoop() {
+        System.out.printf("\n\n");
+        XYPoint xy = new XYPoint();
+        for (int y = 0; y < yMax; y++) {
+            String line = "";
+            for (int x = 0; x < xMax; x++) {
+                xy.set(x, y);
+                Character out;
+                if (empties.contains(xy)) {
+                    out = EMPTY_CHAR;
+                } else if (theLoop.containsKey(xy.toString())) {
+                    out = theLoop.get(xy.toString()).getType().label;
+                } else {
+                    out = ' ';    // print a space if nothing is there
+                }
+                line += out;
+            }
+            System.out.println(line);
+        }
+    }
 //    private void makePipeConnection(XYPoint xy, PipeType type) {
 //        // Make a new pipe segment & connect it
 //        XYPoint location = pipes.containsKey(xy) ? pipes.get(xy) :
 //    }
 }
+
+enum ThingFound {
+    BOUNDARY,
+    PIPE
+}
+

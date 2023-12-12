@@ -18,11 +18,13 @@ public class Day10Test {
     private final String EXAMPLE2_INPUT = "data/day10/example2.txt";
     private final String EXAMPLE3_INPUT = "data/day10/example3.txt";
     private final String EXAMPLE4_INPUT = "data/day10/example4.txt";
+    private final String EXAMPLE5_INPUT = "data/day10/example5.txt";
     private final boolean EXAMPLE_DEBUG = true;
     private Day10Service example1Service = null;
     private Day10Service example2Service = null;
     private Day10Service example3Service = null;
     private Day10Service example4Service = null;
+    private Day10Service example5Service = null;
 
     @Test
     @Order(1)   // Run before Puzzle Part B
@@ -51,7 +53,7 @@ public class Day10Test {
 
         if (PUZZLE_DEBUG) day10Service.doPartA();
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 471;
         long result = 0;
         try {
             result = day10Service.doPartB();
@@ -124,6 +126,25 @@ public class Day10Test {
         long result = 0;
         try {
             result = example4Service.doPartB();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        assertEquals(EXPECTED, result);
+    }
+
+    @Test
+    @Order(4)   // Run after Example Part A
+    @Disabled
+    public void Day10BExample5() {
+        // Instantiate the service if Part A was skipped
+        if (example5Service == null) example5Service = new Day10Service(EXAMPLE5_INPUT, EXAMPLE_DEBUG);
+
+        if (EXAMPLE_DEBUG) example5Service.doPartA();
+
+        final long EXPECTED = 8;
+        long result = 0;
+        try {
+            result = example5Service.doPartB();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

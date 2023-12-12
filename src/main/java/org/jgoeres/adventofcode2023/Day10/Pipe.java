@@ -2,25 +2,25 @@ package org.jgoeres.adventofcode2023.Day10;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jgoeres.adventofcode.common.Direction8Way;
+import org.jgoeres.adventofcode.common.DirectionURDL;
 import org.jgoeres.adventofcode.common.XYPoint;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jgoeres.adventofcode.common.Direction8Way.*;
+import static org.jgoeres.adventofcode.common.DirectionURDL.*;
 import static org.jgoeres.adventofcode2023.Day10.PipeType.*;
 
 
 @Getter
 @Setter
 public class Pipe {
-    final PipeType type;
+    PipeType type;
     final XYPoint xy;
-    final private Map<Direction8Way, Pipe> connections = new HashMap<>();
+    final private Map<DirectionURDL, Pipe> connections = new HashMap<>();
 
-    private static final Map<PipeType, Set<Direction8Way>> VALID_CONNECTIONS = Map.of(
+    private static final Map<PipeType, Set<DirectionURDL>> VALID_CONNECTIONS = Map.of(
             VERT, Set.of(UP, DOWN),
             HORIZ, Set.of(LEFT, RIGHT),
             NORTH_EAST, Set.of(UP, RIGHT),
@@ -35,7 +35,7 @@ public class Pipe {
         this.xy = xy;
     }
 
-    public void addConnection(Direction8Way direction, Pipe otherPipe) {
+    public void addConnection(DirectionURDL direction, Pipe otherPipe) {
         if (otherPipe == null) return;   // dead end, just bail
 
         // Only connect if it's not already connected to something
@@ -48,7 +48,18 @@ public class Pipe {
         }
     }
 
-    public Pipe getConnection(Direction8Way direction) {
+    public void identifyType() {
+        Set<DirectionURDL> connectionDirs = getConnections().keySet();
+        for (Map.Entry<PipeType, Set<DirectionURDL>> valid : VALID_CONNECTIONS.entrySet()) {
+            if (valid.getValue().size() == 2 && valid.getValue().containsAll(connectionDirs)) {
+                // If the connections match the type, set the type
+                this.setType(valid.getKey());
+                return;
+            }
+        }
+    }
+
+    public Pipe getConnection(DirectionURDL direction) {
         return connections.get(direction);
     }
 
