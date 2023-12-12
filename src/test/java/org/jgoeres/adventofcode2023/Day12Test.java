@@ -24,7 +24,7 @@ public class Day12Test {
             day12Service = new Day12Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 7251;
         long result = 0;
         try {
             result = day12Service.doPartA();
@@ -58,7 +58,7 @@ public class Day12Test {
     @Disabled
     public void Day12AExample1() {
         example1Service = new Day12Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
-        final long EXPECTED = 0;
+        final long EXPECTED = 21;
         long result = 0;
         try {
             result = example1Service.doPartA();
