@@ -15,6 +15,7 @@ import java.util.Map;
 public class Springs {
     private String pattern;
     private List<Integer> groups;
+    private List<List<Integer>> groupValidOffsets = new ArrayList<>();
 
     public Integer totalMaskBits() {
         // Return the total number of bits masked by all groups (counting the space between groups)
@@ -36,7 +37,7 @@ public class Springs {
         List<Integer> unfoldedGroups = new ArrayList<>();
         String unfoldedPattern = pattern;
         unfoldedGroups.addAll(groups);
-        for (int i = 0; i < (factor-1); i++) {
+        for (int i = 0; i < (factor - 1); i++) {
             unfoldedPattern += "?" + pattern;
             unfoldedGroups.addAll(groups);
         }

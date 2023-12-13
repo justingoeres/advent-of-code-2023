@@ -120,6 +120,29 @@ public class Day12Service {
         return count;
     }
 
+
+    private List<List<Integer>> findAllValidGroupOffsets(Springs springs) {
+        final Integer numGroups = springs.getGroups().size();
+        Integer minShift = 0;
+        Integer maxShift = 0;
+        List<List<Integer>> allGroupShifts = new ArrayList<>();
+        for (int i = 0; i < numGroups; i++) {
+            // Each group must be shifted by at least the minimum valid shift
+            // of the group behind it, plus its own length
+            for (int j = 0; j < i; j++) {
+                List<Integer> prevGroupShifts = allGroupShifts.get(j);
+                minShift += prevGroupShifts.get(prevGroupShifts.size()) - 1;
+            }
+            
+        }
+        // Starting with the first group, figure out what the _latest_ in the pattern is
+        // that it could possibly be.
+
+        // Then track it backward toward the beginning of the pattern to find the valid spots.
+        return null;
+    }
+
+
     private Integer generateGroupMask(final Integer groupLength) {
         Integer mask = 0;
         for (int i = 0; i < groupLength; i++) {
