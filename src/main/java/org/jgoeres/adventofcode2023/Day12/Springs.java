@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +13,8 @@ import java.util.Map;
 @Setter
 @RequiredArgsConstructor
 public class Springs {
-    final String pattern;
-    final List<Integer> groups;
+    private String pattern;
+    private List<Integer> groups;
 
     public Integer totalMaskBits() {
         // Return the total number of bits masked by all groups (counting the space between groups)
@@ -30,6 +31,25 @@ public class Springs {
         return baselineShift(groupNum) + groupShift;
     }
 
+    public void unfold(Integer factor) {
+        // Duplicate the pattern and the groups list to a total of 'factor' times larger.
+        List<Integer> unfoldedGroups = new ArrayList<>();
+        String unfoldedPattern = pattern;
+        unfoldedGroups.addAll(groups);
+        for (int i = 0; i < (factor-1); i++) {
+            unfoldedPattern += "?" + pattern;
+            unfoldedGroups.addAll(groups);
+        }
+        setPattern(unfoldedPattern);
+        setGroups(unfoldedGroups);
+
+        System.out.printf("Unfolded length:\t%d\n", pattern.length());
+    }
+
+    public Springs(String pattern, List<Integer> groups) {
+        this.pattern = pattern;
+        this.groups = groups;
+    }
 }
 
 enum SpringStatus {

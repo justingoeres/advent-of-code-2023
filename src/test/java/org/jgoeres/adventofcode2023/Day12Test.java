@@ -75,7 +75,7 @@ public class Day12Test {
         // Instantiate the service if Part A was skipped
         if (example1Service == null) example1Service = new Day12Service(EXAMPLE1_INPUT, EXAMPLE_DEBUG);
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 525152;
         long result = 0;
         try {
             result = example1Service.doPartB();

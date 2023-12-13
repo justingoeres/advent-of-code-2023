@@ -46,7 +46,15 @@ public class Day12Service {
         System.out.println("=== DAY 12B ===");
 
         long result = 0;
-        /** Put problem implementation here **/
+        /**
+         * Unfold your condition records; what is the new sum of possible arrangement counts?
+         **/
+
+        // Unfold all the springs x 5
+        for (Springs springs : allSprings) {
+            springs.unfold(5);
+            result += countValidArrangements(springs);
+        }
 
         System.out.println("Day 12B: Answer = " + result);
         return result;
@@ -74,8 +82,8 @@ public class Day12Service {
                 springsGoodMask |= 1 << ((patternLength - 1) - i);
             }
         }
-        System.out.printf("broken springs mask:\t%s\n", Integer.toBinaryString(springsBrokenMask));
-        System.out.printf("good springs mask:\t%s\n", Integer.toBinaryString(springsGoodMask));
+//        System.out.printf("broken springs mask:\t%s\n", Integer.toBinaryString(springsBrokenMask));
+//        System.out.printf("good springs mask:\t%s\n", Integer.toBinaryString(springsGoodMask));
 
 
         // iterate through all combinations of the shifted springs
@@ -89,11 +97,11 @@ public class Day12Service {
             for (int i = 0; i < groups.size(); i++) {
                 // Figure out the total shift for each group
                 Integer shiftedGroup = groups.get(i) << springs.totalShift(i, shift.get(i));
-                System.out.printf("shifted current group:\t%s\n", Integer.toBinaryString(shiftedGroup));
+//                System.out.printf("shifted current group:\t%s\n", Integer.toBinaryString(shiftedGroup));
                 // And add it to the mask
                 springsPosition |= shiftedGroup;
             }
-            System.out.printf("spring arrangement:\t%s\n", Integer.toBinaryString(springsPosition));
+//            System.out.printf("spring arrangement:\t%s\n", Integer.toBinaryString(springsPosition));
 
             // Now we have the arrangement we need to check. Is it a valid arrangement given what we know?
             // Starting with 'pattern', our mask needs a '1' wherever there is a #
@@ -103,7 +111,7 @@ public class Day12Service {
             Boolean brokenSprings = (springsPosition & springsBrokenMask) == springsBrokenMask;
             // Are the good ones in the right place?
             Boolean goodSprings = (~springsPosition & springsGoodMask) == springsGoodMask;
-            System.out.printf("broken OK?\t%s\tgood OK?\t%s\n", brokenSprings, goodSprings);
+//            System.out.printf("broken OK?\t%s\tgood OK?\t%s\n", brokenSprings, goodSprings);
 
             if (brokenSprings && goodSprings) {
                 count++;
@@ -138,7 +146,6 @@ public class Day12Service {
             return;
         }
         for (int i = 0; i <= limit; i++) {
-//      for (Integer shiftValue : shifts) {
             intShifts[position] = i;
             calculateAllShifts(intShifts, position + 1, allShifts, i);
         }
