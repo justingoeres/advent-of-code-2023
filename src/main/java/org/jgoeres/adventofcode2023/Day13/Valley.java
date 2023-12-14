@@ -15,6 +15,8 @@ public class Valley {
     private static final char ROCK = '#';
     private static final char ASH = '.';
 
+    public Integer NOT_FOUND_IDX = -1;
+
     private final Map<XYPoint, Character> map = new HashMap<>();
     private final List<Long> rowValues = new ArrayList<>();
     private final List<Long> colValues = new ArrayList<>();
@@ -22,6 +24,8 @@ public class Valley {
     private Long xMax = 0L;
     private Long yMax = 0L;
 
+    private Integer rowReflectIdx = NOT_FOUND_IDX;
+    private Integer colReflectIdx = NOT_FOUND_IDX;
 
     public Character put(XYPoint xy, Character item) {
         if (xy.getX() > xMax) xMax = xy.getX();

@@ -1,5 +1,7 @@
 package org.jgoeres.adventofcode2023.Day13;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jgoeres.adventofcode.common.XYPoint;
 
 import java.io.BufferedReader;
@@ -9,6 +11,7 @@ import java.util.List;
 
 public class Day13Service {
     public boolean DEBUG = false;
+    public static final Integer NOT_FOUND_IDX = -1;
 
     private ArrayList<Valley> valleys = new ArrayList<>();
 
@@ -19,6 +22,20 @@ public class Day13Service {
     public Day13Service(String pathToFile, boolean debug) {
         loadInputs(pathToFile);
         DEBUG = debug;
+    }
+
+    @Getter
+    @Setter
+    public static class Answers {
+        Long partA;
+        Long partB;
+    }
+
+    public Day13Service.Answers doPuzzle() {
+        final Day13Service.Answers answers = new Day13Service.Answers();
+        answers.setPartA(doPartA());
+        answers.setPartB(doPartB());
+        return answers;
     }
 
     public long doPartA() {
@@ -33,13 +50,14 @@ public class Day13Service {
          * to that, also add 100 multiplied by the number of rows above each horizontal line of reflection.
          **/
 
-        // Find vertical reflections
         for (Valley valley : valleys) {
             System.out.println("rows");
-            Integer rowFoundAt = searchValues(valley.getRowValues());
+            Integer rowFoundIdx = searchValues(valley.getRowValues());
+            valley.setRowReflectIdx(rowFoundIdx);
             System.out.println("columns");
-            Integer colFoundAt = searchValues(valley.getColValues());
-            Integer valleyResult = colFoundAt + 100 * rowFoundAt;
+            Integer colFoundIdx = searchValues(valley.getColValues());
+            valley.setColReflectIdx(colFoundIdx);
+            Integer valleyResult = (colFoundIdx + 1) + 100 * (rowFoundIdx + 1); // because the puzzle counts from 1 not 0 }
             System.out.println("valley result:\t" + valleyResult);
             System.out.println();
             result += valleyResult;
@@ -49,27 +67,122 @@ public class Day13Service {
         return result;
     }
 
+    public long doPartB() {
+        System.out.println("=== DAY 13B ===");
+
+        long result = 0;
+        /**
+         * In each pattern, fix the smudge and find the different line of reflection.
+         * What number do you get after summarizing the new reflection
+         * line in each pattern in your notes?
+         **/
+
+        for (Valley valley : valleys) {
+            System.out.println("rows");
+            Integer rowFoundIdx = searchValuesPartB(valley.getRowValues(), valley.getRowReflectIdx());
+            valley.setRowReflectIdx(rowFoundIdx);
+            System.out.println("columns");
+            Integer colFoundIdx = searchValuesPartB(valley.getColValues(), valley.getColReflectIdx());
+            valley.setColReflectIdx(colFoundIdx);
+            Integer valleyResult = (colFoundIdx + 1) + 100 * (rowFoundIdx + 1); // because the puzzle counts from 1 not 0 }
+            System.out.println("valley result:\t" + valleyResult);
+            System.out.println();
+            result += valleyResult;
+        }
+
+        System.out.println("Day 13B: Answer = " + result);
+        return result;
+    }
+
     private static Integer searchValues(List<Long> values) {
         int i = 0;
         while ((i + 1) < values.size()) {    // while we're in bounds
             // The first reflected column/row is the one that
             // is equal to its next neighbor
             if (values.get(i).equals(values.get(i + 1))) {
-                int foundAt = i;
-                System.out.printf("candidate found at:\t%d\n", foundAt);
+                int foundAtIdx = i;
+                System.out.printf("candidate found at:\t%d\n", foundAtIdx);
 
-                final Boolean isReflection = checkForMatches(foundAt, values);
+                final Boolean isReflection = checkForMatches(foundAtIdx, values);
                 if (isReflection) {
                     // If this is a reflection, return the result
-                    System.out.printf("reflection found at index %d\n", foundAt);
-                    return foundAt + 1; // because the puzzle counts from 1 not 0 }
+                    System.out.printf("reflection found at index %d\n", foundAtIdx);
+                    return foundAtIdx;
                 }
             }
             i++;
         }
         // If we get here, we didn't find any reflections
         System.out.printf("Nothing found.\n");
-        return 0;
+        return NOT_FOUND_IDX;
+    }
+
+    private static Integer searchValuesPartB(List<Long> values, Integer alreadyFoundAtIdx) {
+        int i = 0;
+        while ((i + 1) < values.size()) {    // while we're in bounds
+            // The first reflected column/row is the one that
+            // is equal to its next neighbor
+            if (i != alreadyFoundAtIdx // if we already found a reflection here before, skip it
+                    && (values.get(i).equals(values.get(i + 1))
+                    || checkWithShifts(values.get(i), values.get(i + 1)))) {
+                int foundAtIdx = i;
+                System.out.printf("candidate found at:\t%d\n", foundAtIdx);
+
+                final Boolean isReflection = checkForMatchesPartB(foundAtIdx, values);
+                if (isReflection) {
+                    // If this is a reflection, return the result
+                    System.out.printf("reflection found at index %d\n", foundAtIdx);
+                    return foundAtIdx;
+                }
+            }
+            i++;
+        }
+        // If we get here, we didn't find any reflections
+        System.out.printf("Nothing found.\n");
+        return NOT_FOUND_IDX;
+    }
+
+    private static Boolean checkWithShifts(final Long val1, final Long val2) {
+        for (int b = 0; b < 24; b++) {  // All our numbers are < 24 bits
+            Long val2Fixed = val2 ^ (1 << b);
+            if (val1.equals(val2Fixed)) {
+                // If the "fixed" side 2 value now matches side 1
+                // this could still be a reflection!
+                return true;
+            }
+        }
+        // If we get here, nothing matched, so
+        return false;
+    }
+
+    private static Boolean checkForMatchesPartB(int foundAt, List<Long> values) {
+        // Now that we found a candidate, check backwards to verify the match
+        int side1 = foundAt;
+        int side2 = foundAt + 1;
+        Boolean found = false;   // assume a match until we find out different
+        while (side1 >= 0 && side2 < values.size()) {
+            // as long as we're in bounds and haven't found something yet
+            if (!values.get(side1).equals(values.get(side2))) {
+                // If the two values are NOT equal
+                System.out.printf("not a reflection at indexes %d and %d\n", side1, side2);
+                // Can we fix one of the values?
+                Boolean keepGoing = false;
+                for (int b = 0; b < 24; b++) {  // All our numbers are < 24 bits
+                    Long valueSide2Fixed = values.get(side2) ^ (1 << b);
+                    if (values.get(side1).equals(valueSide2Fixed)) {
+                        // If the "fixed" side 2 value now matches side 1
+                        // this could still be a reflection!
+                        keepGoing = true;
+                        break;
+                    }
+                }
+                if (!keepGoing) return false;
+            }
+            side1--;
+            side2++;
+        }
+        // If we get here, we're done checking and haven't failed, so this is a reflection.
+        return true;
     }
 
     private static Boolean checkForMatches(int foundAt, List<Long> values) {
@@ -81,6 +194,7 @@ public class Day13Service {
             if (!values.get(side1).equals(values.get(side2))) {
                 // If the two values are NOT equal
                 System.out.printf("not a reflection at indexes %d and %d\n", side1, side2);
+                // Check to see if there's a smudge we can fix
                 return false;
             }
             side1--;
@@ -88,16 +202,6 @@ public class Day13Service {
         }
         // If we get here, we're done checking and haven't failed, so this is a reflection.
         return true;
-    }
-
-    public long doPartB() {
-        System.out.println("=== DAY 13B ===");
-
-        long result = 0;
-        /** Put problem implementation here **/
-
-        System.out.println("Day 13B: Answer = " + result);
-        return result;
     }
 
     // load inputs line-by-line and extract fields
