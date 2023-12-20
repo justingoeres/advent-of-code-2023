@@ -1,7 +1,6 @@
 package org.jgoeres.adventofcode2023.Day16;
 
 import org.jgoeres.adventofcode.common.DirectionURDL;
-import org.jgoeres.adventofcode.common.Utils.Pair;
 import org.jgoeres.adventofcode.common.XYPoint;
 
 import java.io.BufferedReader;
@@ -43,11 +42,8 @@ public class Day16Service {
          **/
         XYPoint xyBeam1 = new XYPoint(0, 0); // Start in the upper left
         DirectionURDL dirBeam1 = RIGHT;    // headed to the Right
-
-        processBeamStep(xyBeam1, dirBeam1);
-
+        traceBeam(xyBeam1, dirBeam1);
         long result = energized.size();
-//        printXYs(energized);
         System.out.println("Day 16A: Total tiles energized = " + result);
         return result;
     }
@@ -60,50 +56,44 @@ public class Day16Service {
          * Find the initial beam configuration that energizes the largest number of tiles;
          * how many tiles are energized in that configuration?
          **/
-
-        // Set up all the test cases
+        // Process all the configurations
         for (int x0 = 0; x0 <= xMax; x0++) { // down/up the columns
-
+            // down from the top
             XYPoint xy0 = new XYPoint(x0, 0);
             DirectionURDL dir = DOWN;
-            System.out.printf("Testing %s going %s\n", xy0, dir);
-            energized.clear();
-            totalStates.clear();
-            processBeamStep(xy0, dir);    // down from the top
+            traceBeam(xy0, dir);    // run it
             result = Math.max(result, energized.size());
 
+            // up from the bottom
             xy0.set(x0, yMax - 1);
             dir = UP;
-            System.out.printf("Testing %s going %s\n", xy0, dir);
-            energized.clear();
-            totalStates.clear();
-//            processBeamStep(new XYPoint(x0, yMax - 1), UP);    // up from the bottom
-            processBeamStep(xy0, dir);    // up from the bootom
-
+            traceBeam(xy0, dir);    // run it
             result = Math.max(result, energized.size());
         }
 
         for (int y0 = 0; y0 < yMax; y0++) { // across the rows
+            // in from the left
             XYPoint xy0 = new XYPoint(0, y0);
             DirectionURDL dir = RIGHT;
-            System.out.printf("Testing %s going %s\n", xy0, dir);
-            energized.clear();
-            totalStates.clear();
-            processBeamStep(xy0, dir);    // in from the left
+            traceBeam(xy0, dir);    // run it
             result = Math.max(result, energized.size());
 
+            // in from the right
             xy0.set(xMax, y0);
             dir = LEFT;
-            System.out.printf("Testing %s going %s\n", xy0, dir);
-            energized.clear();
-            totalStates.clear();
-            processBeamStep(xy0, dir);    // in from the right
+            traceBeam(xy0, dir);    // run it
             result = Math.max(result, energized.size());
         }
 
-
-        System.out.println("Day 16B: Answer = " + result);
+        System.out.println("Day 16B: Max number of tiles energized = " + result);
         return result;
+    }
+
+    private void traceBeam(XYPoint xy0, DirectionURDL dir) {
+//        System.out.printf("Testing %s going %s\n", xy0, dir);
+        energized.clear();
+        totalStates.clear();
+        processBeamStep(xy0, dir);
     }
 
     private void processBeamStep(XYPoint xy, DirectionURDL dir) {
@@ -155,7 +145,6 @@ public class Day16Service {
                     case (SPLIT_HORIZ):
                         if (dir.equals(UP) || dir.equals(DOWN)) {
                             // Split the beam
-//                                        System.out.printf("horizontal splitter going %s\n", dir);
                             dir = RIGHT; // existing one goes right
                             xy.moveRelative(1, dir); // move the first one
                             // spawn the new one
@@ -185,152 +174,11 @@ public class Day16Service {
                         break;
                 }
             } else {
-                // on an empty cell
-//                            System.out.printf("%s is EMPTY, adding to total states\tenergized:\t%d\n", xy, energized.size());
-                // and then just keep moving
+                // on an empty cell; just keep swimming
                 xy.moveRelative(1, dir);
             }
-
-//                } else System.out.printf("beam dies at %s\n", xy);
-//                    System.out.printf("beam dies at: row %d,\tcol %d\t(out of bounds)\n", xy.getY() + 1, xy.getX() + 1);
         }
     }
-
-    public long doPartAold() {
-        System.out.println("=== DAY 16A ===");
-
-        /**
-         * With the beam starting in the top-left heading right, how many tiles end up being energized?
-         **/
-        XYPoint xyBeam1 = new XYPoint(0, 0); // Start in the upper left
-        DirectionURDL dirBeam1 = RIGHT;    // headed to the Right
-
-        final Map<XYPoint, DirectionURDL> beams1 = new HashMap<>();
-        final Map<XYPoint, DirectionURDL> beams2 = new HashMap<>();
-        beams1.put(xyBeam1, dirBeam1);    // setup the first beam
-
-        Pair<Map<XYPoint, DirectionURDL>> beamPair = new Pair<>(beams1, beams2);
-
-        Map<XYPoint, DirectionURDL> currentBeams = beamPair.getFirst();
-        Integer t = 1;
-        while (!currentBeams.isEmpty()) {
-            System.out.printf("t = %d\n", t);
-            final Map<XYPoint, DirectionURDL> nextBeams = beamPair.getSecond();
-            nextBeams.clear();
-//            print(mirrors, currentBeams);
-            for (Map.Entry<XYPoint, DirectionURDL> beam : currentBeams.entrySet()) {
-                // Process each beam at each step
-                final XYPoint xy = beam.getKey();
-                DirectionURDL dir = beam.getValue();
-//                System.out.printf("beam at %s, heading %s\n", xy, dir);
-                if (inBounds(xy, xMax, yMax)) {
-                    // Energize the cell we're on
-                    energized.add(xy.toString());
-                    if (!totalStates.contains(getTotalState(xy, dir))) {
-                        if (mirrors.containsKey(xy)) {
-                            // If we're on a non-empty cell
-                            final Character cellType = mirrors.get(xy);
-                            switch (cellType.charValue()) {
-                                case (UL_LR): // '\'
-                                    switch (dir) {
-                                        case UP:
-                                            dir = LEFT;
-                                            break;
-                                        case RIGHT:
-                                            dir = DOWN;
-                                            break;
-                                        case DOWN:
-                                            dir = RIGHT;
-                                            break;
-                                        case LEFT:
-                                            dir = UP;
-                                            break;
-                                    }
-                                    xy.moveRelative(1, dir); // move
-                                    nextBeams.put(xy, dir);
-                                    break;
-                                case (UR_LL): // '/'
-                                    switch (dir) {
-                                        case UP:
-                                            dir = RIGHT;
-                                            break;
-                                        case RIGHT:
-                                            dir = UP;
-                                            break;
-                                        case DOWN:
-                                            dir = LEFT;
-                                            break;
-                                        case LEFT:
-                                            dir = DOWN;
-                                            break;
-                                    }
-                                    xy.moveRelative(1, dir); // move
-                                    nextBeams.put(xy, dir);
-                                    break;
-                                case (SPLIT_HORIZ):
-                                    if (dir.equals(UP) || dir.equals(DOWN)) {
-                                        // Split the beam
-//                                        System.out.printf("horizontal splitter going %s\n", dir);
-                                        dir = RIGHT; // existing one goes right
-                                        final XYPoint newBeam = xy.getRelativeLocation(LEFT); // create a new beam to the left
-                                        final DirectionURDL newDir = LEFT; // the other keeps going left
-                                        xy.moveRelative(1, dir); // move the first one
-                                        // store them both for next time
-                                        nextBeams.put(xy, dir);
-                                        nextBeams.put(newBeam, newDir);
-                                    } else {
-                                        // parallel to the splitter; just keep moving
-                                        xy.moveRelative(1, dir);
-                                        nextBeams.put(xy, dir);
-                                    }
-                                    break;
-                                case (SPLIT_VERT):
-                                    if (dir.equals(LEFT) || dir.equals(RIGHT)) {
-                                        // Split the beam
-                                        dir = UP; // existing one goes up
-                                        final XYPoint newBeam = xy.getRelativeLocation(DOWN); // create a new beam below
-                                        final DirectionURDL newDir = DOWN; // the other keeps going down
-                                        xy.moveRelative(1, dir); // move the first one
-                                        // store them both for next time
-                                        nextBeams.put(xy, dir);
-                                        nextBeams.put(newBeam, newDir);
-                                    } else {
-                                        // parallel to the splitter; just keep moving
-                                        xy.moveRelative(1, dir);
-                                        nextBeams.put(xy, dir);
-                                    }
-                                    break;
-                            }
-                        } else {
-                            // on an empty cell
-//                            System.out.printf("%s is EMPTY, adding to total states\tenergized:\t%d\n", xy, energized.size());
-                            totalStates.add(getTotalState(xy, dir));    // record the state in this tile
-                            // and then just keep moving
-                            xy.moveRelative(1, dir);
-                            nextBeams.put(xy, dir);
-                        }
-                    } else {
-                        System.out.printf("beam dies at: row %d,\tcol %d\tgoing %s\n", xy.getY() + 1, xy.getX() + 1, dir);
-                    }
-//                } else System.out.printf("beam dies at %s\n", xy);
-                } else {
-//                    System.out.printf("beam dies at: row %d,\tcol %d\t(out of bounds)\n", xy.getY() + 1, xy.getX() + 1);
-                }
-            }
-            // Switch the beam sets and continue
-            beamPair.swap();
-            currentBeams = beamPair.getFirst();
-//            System.out.printf("energized:\t%d\n", energized.size());
-//            printAll(mirrors, currentBeams, energized);
-//            System.out.printf("active beams:\t%d\n", currentBeams.size());
-            t++;
-        }
-        long result = energized.size();
-//        printXYs(energized);
-        System.out.println("Day 16A: Total tiles energized = " + result);
-        return result;
-    }
-
 
     private boolean inBounds(final XYPoint xy, final Long xMax, final Long yMax) {
         final Long x = xy.getX();
@@ -421,21 +269,6 @@ public class Day16Service {
                 xy.set(x, y);
                 if (mirrors.containsKey(xy)) {
                     line += mirrors.get(xy);
-//                    final DirectionURDL dir = currentBeams.get(xy);
-//                    switch (dir) {
-//                        case UP:
-//                            line += "^";
-//                            break;
-//                        case RIGHT:
-//                            line += ">";
-//                            break;
-//                        case DOWN:
-//                            line += "v";
-//                            break;
-//                        case LEFT:
-//                            line += "<";
-//                            break;
-//                    }
                 } else if (energized.contains(xy.toString())) {
                     line += "#";
                 } else {
@@ -473,9 +306,5 @@ public class Day16Service {
                 Exception e) {
             System.out.println("Exception occurred: " + e.getMessage());
         }
-    }
-
-    private void printXYs(Set<String> xySet) {
-        xySet.stream().forEach(System.out::println);
     }
 }
