@@ -44,7 +44,7 @@ public class Day16Test {
             day16Service = new Day16Service(PUZZLE_INPUT, PUZZLE_DEBUG);
         }
 
-        final long EXPECTED = 0;
+        final long EXPECTED = 8331;
         long result = 0;
         try {
             result = day16Service.doPartB();
